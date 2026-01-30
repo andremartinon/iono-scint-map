@@ -13,6 +13,7 @@ numpy = "~=2.3.5"
 polars = "~=1.37.1"
 ppigrf = "~=2.1.0"
 scikit-learn = "~=1.8.0"
+rich = "*"
 
 [dev-packages]
 build = "~=1.4.0"
