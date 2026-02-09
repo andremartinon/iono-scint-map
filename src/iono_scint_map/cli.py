@@ -14,12 +14,11 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, see <https://www.gnu.org/licenses/>.
+import click
 import datetime
 
-import click
-
+from gettext import gettext as _
 from pathlib import Path
-
 from pygments.lexer import default
 from rich.console import Console
 from rich.table import Table
@@ -43,12 +42,14 @@ def cli():
                         '------------------',
                 bold=False,
                 fg='white')
-    click.secho(message=f'Ionospheric Scintillation Map Generation Tool - '
-                        f'version {__version__}',
+    msg = _('Ionospheric Scintillation Map Generation Tool - version '
+            '%(version)s')
+    click.secho(message=msg % {'version': __version__},
                 bold=True,
                 fg='green')
-    click.secho(message='Copyright (\u00A9) 2026 - National Institute for '
-                        'Spatial Research (INPE)',
+    msg = _('Copyright (%(copyright_symbol)s) 2026 - National Institute for '
+            'Spatial Research (INPE)')
+    click.secho(message=msg % {'copyright_symbol': '\u00A9'},
                 bold=False,
                 fg='cyan')
     click.secho(message='-------------------------------------------------'
@@ -64,10 +65,10 @@ def cli():
 @click.option('-s', '--scint-index',
               type=click.Choice(ScintillationIndex, case_sensitive=False),
               default=ScintillationIndex.S4_1, show_default=True,
-              help='Select the scintillation index to generate the '
+              help=_('Select the scintillation index to generate the '
                    'scintillation map. The suffixes represent the signal used '
                    'to measure the indices. For example, use S4_1 for S4 '
-                   'measured in the L1CA band, or equivalent.')
+                   'measured in the L1CA band, or equivalent.'))
 # Map extent
 @click.option('-x', '--extent', nargs=4, type=click.Tuple(
     [click.FloatRange(-180.0, 180.0),
@@ -136,40 +137,41 @@ def create_scint_map(scint_index: ScintillationIndex,
 
     """
     console = Console()
-    table = Table(title="Scintillation Map Generation Parameters")
-    table.add_column("Parameter", justify="left", style="cyan")
-    table.add_column("Value", justify="left", style="white")
-    table.add_row('Scintillation index', scint_index.index.upper())
-    table.add_row('Scintillation index type',
+    table = Table(title=_('Scintillation Map Generation Parameters'))
+    table.add_column(_('Parameter'), justify="left", style="cyan")
+    table.add_column(_("Value"), justify="left", style="white")
+    table.add_row(_('Scintillation index'), scint_index.index.upper())
+    table.add_row(_('Scintillation index type'),
                   scint_index.type.upper())
-    table.add_row('Scintillation index limits',
-                  f'min: {scint_index.limits["min"]}, '
-                  f'max: {scint_index.limits["max"]}')
-    table.add_row('Interpolated map extents',
+    msg = _('min: %(min_value).2f, max: %(max_value).2f')
+    table.add_row(_('Scintillation index limits'),
+                  msg % {'min_value': scint_index.limits["min"],
+                         'max_value': scint_index.limits["max"]})
+    table.add_row(_('Interpolated map extents'),
                   f'[{"°, ".join(map(str, extent))}]')
-    table.add_row('Elevation limit', f'{elevation}°')
+    table.add_row(_('Elevation limit'), f'{elevation}°')
     # table.add_row('Constellations', constellation)
-    table.add_row('Preprocessing options',
+    table.add_row(_('Preprocessing options'),
                   preprocessing.value.upper())
-    table.add_row('Interpolation method',
+    table.add_row(_('Interpolation method'),
                   interpolation.value.upper())
-    table.add_row('Interpolation grid resolution',
+    table.add_row(_('Interpolation grid resolution'),
                   f'{interpolation_grid_resolution}° x '
                   f'{interpolation_grid_resolution}°')
-    table.add_row('IPP group resolution',
+    table.add_row(_('IPP group resolution'),
                   f'{ipp_group_resolution}° x '
                   f'{ipp_group_resolution}°')
     # table.add_row('Remove data from stations', remove_station)
-    table.add_row('Default spectral p value', str(default_p))
+    table.add_row(_('Default spectral p value'), str(default_p))
     if start is not None:
-        table.add_row('Start time',
+        table.add_row(_('Start time'),
                       start.strftime('%Y-%m-%dT%H:%M:%S'))
     if end is not None:
-        table.add_row('End time',
+        table.add_row(_('End time'),
                       end.strftime('%Y-%m-%dT%H:%M:%S'))
 
-    table.add_row('Scintillation data file', str(scint_data_file))
-    table.add_row('GNSS station data file', str(gnss_stations_file))
+    table.add_row(_('Scintillation data file'), str(scint_data_file))
+    table.add_row(_('GNSS station data file'), str(gnss_stations_file))
     console.print(table)
 
     scint_map_data = ScintillationMapDataset(
@@ -200,7 +202,7 @@ def create_scint_map(scint_index: ScintillationIndex,
 
     scint_map_data = scint_map_pipeline.process(scint_map_data)
 
-    #scint_map_data.to_hdf5()
+    # scint_map_data.to_hdf5()
     print(scint_map_data.grouped)
     print(scint_map_data.interpolated_map)
 
