@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, see <https://www.gnu.org/licenses/>.
 import enum
-
+import h5py
 import numpy as np
 import polars as pl
 
@@ -293,6 +293,33 @@ class ScintillationMapDataset:
                 ScintillationMapDataset.normalize_columns_name(
                     df, STATION_DATA_MUST_HAVE_COLUMNS),
                 STATION_DATA_DTYPES)
+
+
+    def to_hdf5(self, file_path: Path = 'scint_map.hdf5'):
+        with h5py.File(Path(file_path), 'w') as f:
+            d = f.create_dataset(name='scint-map',
+                                 shape=self.interpolated_map.shape,
+                                 dtype=np.float32,
+                                 compression="gzip",
+                                 compression_opts=9,
+                                 data=self.interpolated_map)
+            d.attrs['start_timestamp'] = self.start_timestamp.strftime('%Y-%m-%dT%H:%M:%S')
+            d.attrs['end_timestamp'] = self.end_timestamp.strftime('%Y-%m-%dT%H:%M:%S')
+            d.attrs['preprocessing'] = self.preprocessing.value.upper()
+            d.attrs['elevation'] = self.elevation
+            d.attrs['constellations'] = [c.value for c in self.constellations]
+            d.attrs['remove_stations'] = self.remove_stations
+            d.attrs['scint_index'] = self.scint_index.index.upper()
+            d.attrs['scint_index_signal'] = self.scint_index.signal
+            d.attrs['scint_index_type'] = self.scint_index.type.upper()
+            d.attrs['scint_index_limit'] = (self.scint_index.limits['min'],
+                                            self.scint_index.limits['max'])
+            d.attrs['extent'] = self.map_extent
+            d.attrs['interpolation_grid_resolution'] = self.interpolation_grid_resolution
+            d.attrs['ipp_group_resolution'] = self.ipp_group_resolution
+            d.attrs['default_p'] = self.default_p
+            d.attrs['interpolation'] = self.interpolation.value.upper()
+            d.attrs['stations'] = self.scint_data['station'].unique().sort().to_list()
 
 
 if __name__ == '__main__':

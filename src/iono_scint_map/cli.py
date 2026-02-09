@@ -202,7 +202,8 @@ def create_scint_map(scint_index: ScintillationIndex,
 
     scint_map_data = scint_map_pipeline.process(scint_map_data)
 
-    # scint_map_data.to_hdf5()
+    scint_map_data.to_hdf5()
+
     print(scint_map_data.grouped)
     print(scint_map_data.interpolated_map)
 
