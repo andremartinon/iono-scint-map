@@ -145,7 +145,9 @@ class ScintillationMapDataset:
                  ipp_group_resolution: float = 1.0,
                  interpolation_grid_resolution: float = 0.25,
                  map_extent: Tuple[float, float, float, float] =
-                 (-78.0, -30.0, -39.0, 9.0)):
+                 (-78.0, -30.0, -39.0, 9.0),
+                 start_timestamp: str = None,
+                 end_timestamp: str = None):
         self.scint_index: ScintillationIndex = scint_index
         self.scint_data: pl.DataFrame = pl.DataFrame()
         self.station_data: pl.DataFrame = pl.DataFrame()
@@ -161,6 +163,8 @@ class ScintillationMapDataset:
         self.ipp_group_resolution = ipp_group_resolution
         self.interpolation_grid_resolution = interpolation_grid_resolution
         self.map_extent = map_extent
+        self.start_timestamp = start_timestamp
+        self.end_timestamp = end_timestamp
 
     @staticmethod
     def validate_dataframe(df: pl.DataFrame,

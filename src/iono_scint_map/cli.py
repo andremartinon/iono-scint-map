@@ -14,13 +14,17 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, see <https://www.gnu.org/licenses/>.
+import datetime
+
 import click
 
 from pathlib import Path
+
+from pygments.lexer import default
 from rich.console import Console
 from rich.table import Table
-from rich.text import Text
-from typing import Literal, Tuple, Iterable, List
+# from rich.text import Text
+from typing import Tuple, Iterable, List, Optional
 
 from iono_scint_map import __version__
 from iono_scint_map.dataset import (Constellation, PreprocessingOptions,
@@ -100,14 +104,20 @@ def cli():
 @click.option('-r', '--remove-station',
               type=click.STRING,
               default=None, show_default=True, multiple=True)
-# Remove stations
+# Default p
 @click.option('--default-p',
               type=click.FLOAT,
               default=2.6, show_default=True)
+@click.option('--start',
+              type=click.DateTime(formats=['%Y-%m-%dT%H:%M:%S']), default=None)
+@click.option('--end',
+              type=click.DateTime(['%Y-%m-%dT%H:%M:%S']), default=None)
 # Scintillation data file
-@click.argument('scint_data_file', type=click.Path(exists=True, path_type=Path, resolve_path=True))
+@click.argument('scint_data_file',
+                type=click.Path(exists=True, path_type=Path, resolve_path=True))
 # GNSS station information file
-@click.argument('gnss_stations_file', type=click.Path(exists=True, path_type=Path, resolve_path=True))
+@click.argument('gnss_stations_file',
+                type=click.Path(exists=True, path_type=Path, resolve_path=True))
 def create_scint_map(scint_index: ScintillationIndex,
                      extent: Tuple[float, float, float, float],
                      elevation: float,
@@ -115,9 +125,11 @@ def create_scint_map(scint_index: ScintillationIndex,
                      preprocessing: PreprocessingOptions,
                      interpolation: InterpolationOptions,
                      interpolation_grid_resolution: float,
+                     ipp_group_resolution: float,
                      remove_station: List[str],
                      default_p: float,
-                     ipp_group_resolution: float,
+                     start: Optional[datetime.datetime],
+                     end: Optional[datetime.datetime],
                      scint_data_file: Path,
                      gnss_stations_file: Path):
     """Create an ionospheric scintillation map
@@ -137,8 +149,10 @@ def create_scint_map(scint_index: ScintillationIndex,
                   f'[{"°, ".join(map(str, extent))}]')
     table.add_row('Elevation limit', f'{elevation}°')
     # table.add_row('Constellations', constellation)
-    table.add_row('Preprocessing options', preprocessing.value.upper())
-    table.add_row('Interpolation method', interpolation.value.upper())
+    table.add_row('Preprocessing options',
+                  preprocessing.value.upper())
+    table.add_row('Interpolation method',
+                  interpolation.value.upper())
     table.add_row('Interpolation grid resolution',
                   f'{interpolation_grid_resolution}° x '
                   f'{interpolation_grid_resolution}°')
@@ -147,6 +161,13 @@ def create_scint_map(scint_index: ScintillationIndex,
                   f'{ipp_group_resolution}°')
     # table.add_row('Remove data from stations', remove_station)
     table.add_row('Default spectral p value', str(default_p))
+    if start is not None:
+        table.add_row('Start time',
+                      start.strftime('%Y-%m-%dT%H:%M:%S'))
+    if end is not None:
+        table.add_row('End time',
+                      end.strftime('%Y-%m-%dT%H:%M:%S'))
+
     table.add_row('Scintillation data file', str(scint_data_file))
     table.add_row('GNSS station data file', str(gnss_stations_file))
     console.print(table)
@@ -161,7 +182,9 @@ def create_scint_map(scint_index: ScintillationIndex,
         interpolation=interpolation,
         ipp_group_resolution=ipp_group_resolution,
         interpolation_grid_resolution=interpolation_grid_resolution,
-        map_extent=extent
+        map_extent=extent,
+        start_timestamp=start,
+        end_timestamp=end
     )
 
     scint_map_data.add_scintillation_data(scint_data_file)

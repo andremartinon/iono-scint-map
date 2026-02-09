@@ -23,8 +23,7 @@ from typing import List
 
 import iono_scint_map.features as features
 
-from iono_scint_map.dataset import (ScintillationIndex, ScintillationMapDataset,
-                                    PreprocessingOptions)
+from iono_scint_map.dataset import ScintillationIndex, ScintillationMapDataset
 from iono_scint_map.interpolation import InterpolationOptions
 from iono_scint_map.util import Benchmark
 
@@ -72,6 +71,11 @@ class DataCleaningAndFiltering(DatasetProcessingStage):
 
     def process(self,
                 dataset: ScintillationMapDataset) -> ScintillationMapDataset:
+
+        if dataset.start_timestamp and dataset.end_timestamp:
+            dataset.scint_data = dataset.scint_data.filter(
+                pl.col('datetime').is_between(dataset.start_timestamp,
+                                             dataset.end_timestamp))
 
         # Elevation cut-off
         dataset.scint_data = dataset.scint_data.filter(
@@ -330,7 +334,8 @@ class MapInterpolation(DatasetProcessingStage):
         pass
 
     def validate(self, dataset: ScintillationMapDataset) -> bool:
-        if isinstance(dataset.grouped, pl.DataFrame):
+        if (isinstance(dataset.grouped, pl.DataFrame) and
+                len(dataset.grouped) > 0):
             return True
         else:
             return False
