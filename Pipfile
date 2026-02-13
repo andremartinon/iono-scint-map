@@ -18,6 +18,8 @@ rich = "*"
 [dev-packages]
 build = "~=1.4.0"
 pytest = "~=9.0.2"
+snakeviz = "*"
+line-profiler = "*"
 
 [requires]
 python_version = "3.12"

@@ -2,9 +2,9 @@
 # Copyright (C) 2026  André Ricardo Fazanaro Martinon, Stephan Stephany, and
 # Eurico Rodrigues de Paula
 #
-# This program is free software; you can redistribute it and/or# modify it under
+# This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
-# Foundation; either version 2 of the License, or (at your option) any later
+# Foundation, either version 3 of the License, or (at your option) any later
 # version.
 #
 # This program is distributed in the hope that it will be useful, but WITHOUT
@@ -19,13 +19,14 @@ import datetime
 
 from gettext import gettext as _
 from pathlib import Path
-from pygments.lexer import default
 from rich.console import Console
+from rich.padding import Padding
 from rich.table import Table
-# from rich.text import Text
+from rich.text import Text
 from typing import Tuple, Iterable, List, Optional
 
 from iono_scint_map import __version__
+from iono_scint_map.constant import CONSOLE_WIDTH
 from iono_scint_map.dataset import (Constellation, PreprocessingOptions,
                                     ScintillationIndex, ScintillationMapDataset)
 from iono_scint_map.interpolation import InterpolationOptions
@@ -35,28 +36,170 @@ from iono_scint_map.pipeline import (DatasetProcessingPipeline,
                                      IPPAggregation, MapInterpolation)
 
 
+def print_create_map_config(scint_dataset: ScintillationMapDataset,
+                            scint_data_file: Path,
+                            station_data_file: Path,
+                            output_file: Path):
+
+    console = Console(width=CONSOLE_WIDTH)
+
+    # console.print()
+
+    table = Table(title=_('Scintillation Map Generation Parameters'),
+                  title_style='bold italic green', row_styles=['dim', ''])
+
+    table.add_column(_('Parameter'), justify="left", style="bright_green")
+
+    table.add_column(_("Value"), justify="left", style="cyan", overflow='fold',
+                     highlight=True)
+    table.add_row(*(
+        _('Scintillation index'),
+        scint_dataset.scint_index.index.upper()
+    ))
+
+    table.add_row(*(
+        _('Scintillation index type'),
+        scint_dataset.scint_index.type.upper()
+    ))
+
+    msg = _('min: %(min_value).2f, max: %(max_value).2f')
+    table.add_row(*(
+        _('Scintillation index limits'),
+        msg % {'min_value': scint_dataset.scint_index.limits["min"],
+               'max_value': scint_dataset.scint_index.limits["max"]}
+    ))
+
+    table.add_row(*(
+        _('Interpolated map extents'),
+        f'[{"°, ".join(map(str, scint_dataset.map_extent))}°]'
+    ))
+
+    table.add_row(*(
+        _('Elevation limit'),
+        f'{scint_dataset.elevation}°'
+    ))
+
+    table.add_row(*(
+        _('Constellations'),
+        f"[{', '.join([c.value for c in scint_dataset.constellations])}]"
+    ))
+
+    table.add_row(*(
+        _('Preprocessing options'),
+        scint_dataset.preprocessing.value.upper()
+    ))
+
+    table.add_row(*(
+        _('Interpolation method'),
+        scint_dataset.interpolation.value.upper()
+    ))
+
+    table.add_row(*(
+        _('Interpolation grid resolution'),
+        f'{scint_dataset.interpolation_grid_resolution}° x '
+        f'{scint_dataset.interpolation_grid_resolution}°'
+    ))
+
+    table.add_row(*(
+        _('IPP group resolution'),
+        f'{scint_dataset.ipp_group_resolution}° x '
+        f'{scint_dataset.ipp_group_resolution}°'
+    ))
+
+    table.add_row(*(
+        _('Remove data from stations'),
+        f"[{', '.join([s for s in scint_dataset.remove_stations])}]"
+    ))
+
+    table.add_row(*(
+        _('Default spectral p value'),
+        str(scint_dataset.default_p)
+    ))
+
+    table.add_row(*(
+        _('Start time'),
+        scint_dataset.start_timestamp.strftime('%Y-%m-%d %H:%M:%S')
+    ))
+
+    table.add_row(*(
+        _('End time'),
+        scint_dataset.end_timestamp.strftime('%Y-%m-%d %H:%M:%S')
+    ))
+
+    table.add_row(*(
+        _('Scintillation data file'),
+        str(scint_data_file)
+    ))
+
+    table.add_row(*(
+        _('GNSS station data file'),
+        str(station_data_file)
+    ))
+
+    table.add_row(*(
+        _('HDF5 output map file'),
+        str(output_file)
+    ))
+
+    console.print(table)
+
+
 @click.version_option()
 @click.group()
 def cli():
-    click.secho(message='-------------------------------------------------'
-                        '------------------',
-                bold=False,
-                fg='white')
-    msg = _('Ionospheric Scintillation Map Generation Tool - version '
-            '%(version)s')
-    click.secho(message=msg % {'version': __version__},
-                bold=True,
-                fg='green')
-    msg = _('Copyright (%(copyright_symbol)s) 2026 - National Institute for '
-            'Spatial Research (INPE)')
-    click.secho(message=msg % {'copyright_symbol': '\u00A9'},
-                bold=False,
-                fg='cyan')
-    click.secho(message='-------------------------------------------------'
-                        '------------------',
-                bold=False,
-                fg='white')
-    click.echo()
+    msg_version = _('IONO_SCINT_MAP - Ionospheric Scintillation Map Generation '
+                    'Tool, version %(version)s')
+
+    msg_copyright = ('Copyright (C) 2025-2026 André Ricardo Fazanaro Martinon '
+                     'and others.')
+
+
+    msg_inpe = _('National Institute for Space Research - (INPE)')
+
+    msg = _('This is free software; see the source code for copying conditions.'
+            ' There is ABSOLUTELY NO WARRANTY; not even for MERCHANTABILITY or '
+            'FITNESS FOR A PARTICULAR PURPOSE. For details, type '
+            "'iono_scint_map show'.\n\nReference the paper 'A new approach for "
+            "the generation of real-time GNSS low-latitude ionospheric "
+            "scintillation maps' when using the software in academic papers, "
+             "thesis etc. <https://doi.org/10.1051/swsc/2023015>")
+
+    console = Console(width=CONSOLE_WIDTH, highlight=False)
+
+    console.rule()
+    console.print(msg_version % {'version': __version__},
+                  justify='center', style='bright_white')
+    console.print()
+    console.print(msg_copyright,
+                  justify='center', style='green bold')
+    console.print(msg_inpe,
+                  justify='center', style='cyan')
+    console.rule()
+    console.print(Padding(Text(msg, justify='full')))
+    console.rule()
+
+@cli.command('show')
+def show_warranty_information() -> None:
+    msg_warranty_1 = _('IONO_SCINT_MAP is free software: you can redistribute '
+                       'it and/or modify it under the terms of the GNU General '
+                       'Public License as published by the Free Software '
+                       'Foundation, either version 3 of the License, or (at '
+                       'your option) any later version.')
+    msg_warranty_2 = _('IONO_SCINT_MAP is distributed in the hope that it will '
+                       'be useful, but WITHOUT ANY WARRANTY; without even the '
+                       'implied warranty of MERCHANTABILITY or FITNESS FOR A '
+                       'PARTICULAR PURPOSE. See the GNU General Public License '
+                       'for more details.')
+    msg_warranty_3 = _('You should have received a copy of the GNU General '
+                       'Public License along with IONO_SCINT_MAP; see the file '
+                       'COPYING. If not, see <https://www.gnu.org/licenses/>.')
+
+    console = Console(width=CONSOLE_WIDTH)
+    console.print(Padding(
+        Text(msg_warranty_1 + '\n\n' +
+             msg_warranty_2 + '\n\n' +
+             msg_warranty_3, justify='full'), pad=(1, 4)), style='bold white')
+
 
 
 # COMMAND: Create Scintillation Map
@@ -66,9 +209,9 @@ def cli():
               type=click.Choice(ScintillationIndex, case_sensitive=False),
               default=ScintillationIndex.S4_1, show_default=True,
               help=_('Select the scintillation index to generate the '
-                   'scintillation map. The suffixes represent the signal used '
-                   'to measure the indices. For example, use S4_1 for S4 '
-                   'measured in the L1CA band, or equivalent.'))
+                     'scintillation map. The suffixes represent the signal used'
+                     ' to measure the indices. For example, use S4_1 for S4 '
+                     'measured in the L1CA band, or equivalent.'))
 # Map extent
 @click.option('-x', '--extent', nargs=4, type=click.Tuple(
     [click.FloatRange(-180.0, 180.0),
@@ -119,6 +262,11 @@ def cli():
 # GNSS station information file
 @click.argument('gnss_stations_file',
                 type=click.Path(exists=True, path_type=Path, resolve_path=True))
+# HDF5 output file name
+@click.argument('output_file',
+                type=click.Path(dir_okay=True,
+                                path_type=Path,
+                                resolve_path=True), default='scint_map.hdf5')
 def create_scint_map(scint_index: ScintillationIndex,
                      extent: Tuple[float, float, float, float],
                      elevation: float,
@@ -132,47 +280,17 @@ def create_scint_map(scint_index: ScintillationIndex,
                      start: Optional[datetime.datetime],
                      end: Optional[datetime.datetime],
                      scint_data_file: Path,
-                     gnss_stations_file: Path):
+                     gnss_stations_file: Path,
+                     output_file: Path):
     """Create an ionospheric scintillation map
 
-    """
-    console = Console()
-    table = Table(title=_('Scintillation Map Generation Parameters'))
-    table.add_column(_('Parameter'), justify="left", style="cyan")
-    table.add_column(_("Value"), justify="left", style="white")
-    table.add_row(_('Scintillation index'), scint_index.index.upper())
-    table.add_row(_('Scintillation index type'),
-                  scint_index.type.upper())
-    msg = _('min: %(min_value).2f, max: %(max_value).2f')
-    table.add_row(_('Scintillation index limits'),
-                  msg % {'min_value': scint_index.limits["min"],
-                         'max_value': scint_index.limits["max"]})
-    table.add_row(_('Interpolated map extents'),
-                  f'[{"°, ".join(map(str, extent))}]')
-    table.add_row(_('Elevation limit'), f'{elevation}°')
-    # table.add_row('Constellations', constellation)
-    table.add_row(_('Preprocessing options'),
-                  preprocessing.value.upper())
-    table.add_row(_('Interpolation method'),
-                  interpolation.value.upper())
-    table.add_row(_('Interpolation grid resolution'),
-                  f'{interpolation_grid_resolution}° x '
-                  f'{interpolation_grid_resolution}°')
-    table.add_row(_('IPP group resolution'),
-                  f'{ipp_group_resolution}° x '
-                  f'{ipp_group_resolution}°')
-    # table.add_row('Remove data from stations', remove_station)
-    table.add_row(_('Default spectral p value'), str(default_p))
-    if start is not None:
-        table.add_row(_('Start time'),
-                      start.strftime('%Y-%m-%dT%H:%M:%S'))
-    if end is not None:
-        table.add_row(_('End time'),
-                      end.strftime('%Y-%m-%dT%H:%M:%S'))
+    Parameters
 
-    table.add_row(_('Scintillation data file'), str(scint_data_file))
-    table.add_row(_('GNSS station data file'), str(gnss_stations_file))
-    console.print(table)
+    SCINT_DATA_FILE: file path
+
+        The scintillation data file path. Only CSV and PARQUET formats are
+        accepted.
+    """
 
     scint_map_data = ScintillationMapDataset(
         scint_index=scint_index,
@@ -192,6 +310,9 @@ def create_scint_map(scint_index: ScintillationIndex,
     scint_map_data.add_scintillation_data(scint_data_file)
     scint_map_data.add_station_data(gnss_stations_file)
 
+    print_create_map_config(scint_map_data, scint_data_file,
+                            gnss_stations_file, output_file)
+
     scint_map_pipeline = DatasetProcessingPipeline()
     scint_map_pipeline.add_stage(DataCleaningAndFiltering())
     scint_map_pipeline.add_stage(IPPProjection())
@@ -202,10 +323,7 @@ def create_scint_map(scint_index: ScintillationIndex,
 
     scint_map_data = scint_map_pipeline.process(scint_map_data)
 
-    scint_map_data.to_hdf5()
-
-    print(scint_map_data.grouped)
-    print(scint_map_data.interpolated_map)
+    scint_map_data.to_hdf5(output_file)
 
 
 if __name__ == '__main__':

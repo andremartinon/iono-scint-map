@@ -2,9 +2,9 @@
 # Copyright (C) 2026  André Ricardo Fazanaro Martinon, Stephan Stephany, and
 # Eurico Rodrigues de Paula
 #
-# This program is free software; you can redistribute it and/or# modify it under
+# This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
-# Foundation; either version 2 of the License, or (at your option) any later
+# Foundation, either version 3 of the License, or (at your option) any later
 # version.
 #
 # This program is distributed in the hope that it will be useful, but WITHOUT
@@ -235,6 +235,9 @@ class ScintillationMapDataset:
                     SCINT_DATA_DTYPES),
                 self.scint_index
             )
+            if self.start_timestamp is None and self.end_timestamp is None:
+                self.start_timestamp = self.scint_data['datetime'].dt.min()
+                self.end_timestamp = self.scint_data['datetime'].dt.max()
 
     @add_scintillation_data.register
     def _(self, file_path: Path):
@@ -260,6 +263,9 @@ class ScintillationMapDataset:
                     SCINT_DATA_DTYPES),
                 self.scint_index
             )
+            if self.start_timestamp is None and self.end_timestamp is None:
+                self.start_timestamp = self.scint_data['datetime'].dt.min()
+                self.end_timestamp = self.scint_data['datetime'].dt.max()
 
     @singledispatchmethod
     def add_station_data(self, arg):
@@ -303,8 +309,13 @@ class ScintillationMapDataset:
                                  compression="gzip",
                                  compression_opts=9,
                                  data=self.interpolated_map)
-            d.attrs['start_timestamp'] = self.start_timestamp.strftime('%Y-%m-%dT%H:%M:%S')
-            d.attrs['end_timestamp'] = self.end_timestamp.strftime('%Y-%m-%dT%H:%M:%S')
+
+            d.attrs['start_timestamp'] =\
+                self.start_timestamp.strftime('%Y-%m-%dT%H:%M:%S')
+
+            d.attrs['end_timestamp'] =\
+                self.end_timestamp.strftime('%Y-%m-%dT%H:%M:%S')
+
             d.attrs['preprocessing'] = self.preprocessing.value.upper()
             d.attrs['elevation'] = self.elevation
             d.attrs['constellations'] = [c.value for c in self.constellations]
@@ -315,11 +326,14 @@ class ScintillationMapDataset:
             d.attrs['scint_index_limit'] = (self.scint_index.limits['min'],
                                             self.scint_index.limits['max'])
             d.attrs['extent'] = self.map_extent
-            d.attrs['interpolation_grid_resolution'] = self.interpolation_grid_resolution
+            d.attrs['interpolation_grid_resolution'] =\
+                self.interpolation_grid_resolution
+
             d.attrs['ipp_group_resolution'] = self.ipp_group_resolution
             d.attrs['default_p'] = self.default_p
             d.attrs['interpolation'] = self.interpolation.value.upper()
-            d.attrs['stations'] = self.scint_data['station'].unique().sort().to_list()
+            d.attrs['stations'] =\
+                self.scint_data['station'].unique().sort().to_list()
 
 
 if __name__ == '__main__':
