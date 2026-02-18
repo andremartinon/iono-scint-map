@@ -21,6 +21,7 @@ from typing import List, Iterable
 CONSOLE_WIDTH: int = 80
 
 # Average Earth radius
+# ? 6335.439 ?
 EARTH_RADIUS = 6371
 
 SCINT_DATA_MUST_HAVE_COLUMNS: List[Iterable[str]] = [

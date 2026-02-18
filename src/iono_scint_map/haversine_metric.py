@@ -16,6 +16,8 @@
 # this program; if not, see <https://www.gnu.org/licenses/>.
 import numpy as np
 
+from iono_scint_map.constant import EARTH_RADIUS
+
 
 def calc_haversine_distance(lon_1, lat_1, lon_2, lat_2, r):
     d_lon = np.abs(lon_1 - lon_2)
@@ -29,7 +31,7 @@ def calc_haversine_distance(lon_1, lat_1, lon_2, lat_2, r):
     return np.abs(r * np.arctan(np.sqrt(a + b) / c))
 
 
-def haversine_distance(xa, xb, r=6335.439):
+def haversine_distance(xa, xb, r=EARTH_RADIUS):
     lon_1 = xa[:, 0]*np.pi/180
     lat_1 = xa[:, 1]*np.pi/180
     lon_2 = xb[:, 0]*np.pi/180
@@ -71,3 +73,23 @@ def pdist(x):
 
     xa, xb = get_arrays(x)
     return haversine_distance(xa, xb)
+
+
+if __name__ == '__main__':
+
+    print(calc_haversine_distance(-46.6333*np.pi/180,
+                                  -23.5505*np.pi/180,
+                                  -43.1729*np.pi/180,
+                                  -22.9068*np.pi/180,
+                                  r=6335.439))
+    print(calc_haversine_distance(-46.6333*np.pi/180,
+                                  -23.5505*np.pi/180,
+                                  -43.1729*np.pi/180,
+                                  -22.9068*np.pi/180,
+                                  r=EARTH_RADIUS))
+    print(calc_haversine_distance(np.full(500000000, -46.0)*np.pi/180,
+                                  np.full(500000000, -23.0)*np.pi/180,
+                                  np.full(500000000, -43.2)*np.pi/180,
+                                  np.full(500000000, -22.9)*np.pi/180,
+                                  r=EARTH_RADIUS))
+

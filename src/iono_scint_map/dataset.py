@@ -19,6 +19,7 @@ import h5py
 import numpy as np
 import polars as pl
 
+from datetime import datetime
 from functools import singledispatchmethod
 from pathlib import Path
 from typing import List, Optional, Tuple, Iterable
@@ -146,25 +147,26 @@ class ScintillationMapDataset:
                  interpolation_grid_resolution: float = 0.25,
                  map_extent: Tuple[float, float, float, float] =
                  (-78.0, -30.0, -39.0, 9.0),
-                 start_timestamp: str = None,
-                 end_timestamp: str = None):
+                 start_timestamp: datetime = None,
+                 end_timestamp: datetime = None):
+
         self.scint_index: ScintillationIndex = scint_index
         self.scint_data: pl.DataFrame = pl.DataFrame()
         self.station_data: pl.DataFrame = pl.DataFrame()
         self.grouped: pl.DataFrame = pl.DataFrame()
         self.interpolated_map: np.ndarray = np.array([])
 
-        self.elevation = elevation
-        self.default_p = default_p
-        self.constellations = constellations
-        self.remove_stations = remove_stations
-        self.preprocessing = preprocessing
-        self.interpolation = interpolation
-        self.ipp_group_resolution = ipp_group_resolution
-        self.interpolation_grid_resolution = interpolation_grid_resolution
-        self.map_extent = map_extent
-        self.start_timestamp = start_timestamp
-        self.end_timestamp = end_timestamp
+        self.elevation: float = elevation
+        self.default_p: float = default_p
+        self.constellations: Iterable[Constellation] = constellations
+        self.remove_stations: Iterable[str] = remove_stations
+        self.preprocessing: PreprocessingOptions = preprocessing
+        self.interpolation: InterpolationOptions = interpolation
+        self.ipp_group_resolution: float = ipp_group_resolution
+        self.interpolation_grid_resolution: float = interpolation_grid_resolution
+        self.map_extent: Tuple[float, float, float, float] = map_extent
+        self.start_timestamp: datetime = start_timestamp
+        self.end_timestamp: datetime = end_timestamp
 
     @staticmethod
     def validate_dataframe(df: pl.DataFrame,
@@ -299,7 +301,6 @@ class ScintillationMapDataset:
                 ScintillationMapDataset.normalize_columns_name(
                     df, STATION_DATA_MUST_HAVE_COLUMNS),
                 STATION_DATA_DTYPES)
-
 
     def to_hdf5(self, file_path: Path = 'scint_map.hdf5'):
         with h5py.File(Path(file_path), 'w') as f:

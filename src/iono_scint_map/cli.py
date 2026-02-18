@@ -43,8 +43,6 @@ def print_create_map_config(scint_dataset: ScintillationMapDataset,
 
     console = Console(width=CONSOLE_WIDTH)
 
-    # console.print()
-
     table = Table(title=_('Scintillation Map Generation Parameters'),
                   title_style='bold italic green', row_styles=['dim', ''])
 
@@ -153,16 +151,15 @@ def cli():
     msg_copyright = ('Copyright (C) 2025-2026 André Ricardo Fazanaro Martinon '
                      'and others.')
 
-
     msg_inpe = _('National Institute for Space Research - (INPE)')
 
-    msg = _('This is free software; see the source code for copying conditions.'
-            ' There is ABSOLUTELY NO WARRANTY; not even for MERCHANTABILITY or '
-            'FITNESS FOR A PARTICULAR PURPOSE. For details, type '
+    msg = _("This is free software; see the source code for copying conditions."
+            " There is ABSOLUTELY NO WARRANTY; not even for MERCHANTABILITY or "
+            "FITNESS FOR A PARTICULAR PURPOSE. For details, type "
             "'iono_scint_map show'.\n\nReference the paper 'A new approach for "
             "the generation of real-time GNSS low-latitude ionospheric "
             "scintillation maps' when using the software in academic papers, "
-             "thesis etc. <https://doi.org/10.1051/swsc/2023015>")
+            "thesis etc. <https://doi.org/10.1051/swsc/2023015>")
 
     console = Console(width=CONSOLE_WIDTH, highlight=False)
 
@@ -177,6 +174,7 @@ def cli():
     console.rule()
     console.print(Padding(Text(msg, justify='full')))
     console.rule()
+
 
 @cli.command('show')
 def show_warranty_information() -> None:
@@ -199,7 +197,6 @@ def show_warranty_information() -> None:
         Text(msg_warranty_1 + '\n\n' +
              msg_warranty_2 + '\n\n' +
              msg_warranty_3, justify='full'), pad=(1, 4)), style='bold white')
-
 
 
 # COMMAND: Create Scintillation Map
