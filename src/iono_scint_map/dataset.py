@@ -336,6 +336,15 @@ class ScintillationMapDataset:
             d.attrs['stations'] =\
                 self.scint_data['station'].unique().sort().to_list()
 
+            for station in d.attrs['stations']:
+                station_info = self.station_data.filter(
+                    pl.col('name') == station)
+                d.attrs[station] = [
+                    station_info['lat'],
+                    station_info['lon'],
+                    station_info['alt']
+                ]
+
 
 if __name__ == '__main__':
     input_dir = '/environment/development/inpe/src/iono-scint-map/tests_data/'
