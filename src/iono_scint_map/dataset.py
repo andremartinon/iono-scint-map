@@ -346,6 +346,64 @@ class ScintillationMapDataset:
                 ]
 
 
+
+    @staticmethod
+    def from_hdf5(file_path: Path):
+        with h5py.File(Path(file_path), 'r') as f:
+            scint_index = (f"{f['scint-map'].attrs['scint_index']}_"
+                           f"{f['scint-map'].attrs['scint_index_signal']}")
+            scint_index = ScintillationIndex(scint_index.lower())
+
+            start = datetime.strptime(f['scint-map'].attrs['start_timestamp'],
+                                      '%Y-%m-%dT%H:%M:%S')
+            end = datetime.strptime(f['scint-map'].attrs['end_timestamp'],
+                                    '%Y-%m-%dT%H:%M:%S')
+
+            preprocessing = PreprocessingOptions(
+                f['scint-map'].attrs['preprocessing'].lower())
+
+            elevation = f['scint-map'].attrs['elevation']
+            constellations = [Constellation(c)
+                              for c in f['scint-map'].attrs['constellations']]
+            remove_stations = f['scint-map'].attrs['remove_stations']
+            extent = f['scint-map'].attrs['extent']
+            interpolation_grid_resolution = f['scint-map'].attrs[
+                'interpolation_grid_resolution']
+            ipp_group_resolution = f['scint-map'].attrs['ipp_group_resolution']
+            default_p = f['scint-map'].attrs['default_p']
+            interpolation = InterpolationOptions(
+                f['scint-map'].attrs['interpolation'].lower())
+
+            scint_map_data = ScintillationMapDataset(
+                scint_index,
+                elevation=elevation,
+                default_p=default_p,
+                constellations=constellations,
+                remove_stations=remove_stations,
+                preprocessing=preprocessing,
+                interpolation = interpolation,
+                ipp_group_resolution=ipp_group_resolution,
+                interpolation_grid_resolution=interpolation_grid_resolution,
+                map_extent=extent,
+                start_timestamp=start,
+                end_timestamp=end)
+            scint_map_data.interpolated_map = f['scint-map'][:]
+
+            station_list = []
+            for station in f['scint-map'].attrs['stations']:
+                coordinates = f['scint-map'].attrs[station][:, 0]
+
+                station_list.append({
+                    'name': station,
+                    'lon': coordinates[1],
+                    'lat': coordinates[0],
+                    'alt': coordinates[2]
+                })
+            scint_map_data.station_data = pl.from_dicts(station_list)
+
+        return scint_map_data
+
+
 if __name__ == '__main__':
     input_dir = '/environment/development/inpe/src/iono-scint-map/tests_data/'
     input_dir = Path(input_dir).resolve()
