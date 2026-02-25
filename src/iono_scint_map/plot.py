@@ -197,6 +197,59 @@ def plot_scintillation_map(ax, scint_map_data):
                         hspace=0.0, wspace=0.0)
 
 
+def plot_ipp_map(ax, scint_map_data, size: int = 64):
+    fig = ax.get_figure()
+    scint_index = scint_map_data.scint_index.value
+
+    cmap = mpl.colormaps.get_cmap("jet").copy()
+    cmap.set_under('w', alpha=0)
+    cmap.set_bad(alpha=0)
+
+    map = ax.scatter(scint_map_data.grouped['lon'],
+                     scint_map_data.grouped['lat'],
+                     c=scint_map_data.grouped[scint_index],
+                     vmin=scint_map_data.scint_index.limits['min'],
+                     vmax=scint_map_data.scint_index.limits['max'],
+                     marker='s',
+                     s=size,
+                     cmap=cmap)
+
+    ax.set_xticks([-80, -70, -60, -50, -40, -30], [],
+                  crs=ccrs.PlateCarree())
+    ax.axes.xaxis.set_ticklabels([])
+    ax.set_yticks([-40, -30, -20, -10, 0, 10], [],
+                  crs=ccrs.PlateCarree())
+    ax.axes.yaxis.set_ticklabels([])
+
+    ax.set_aspect(1)
+
+    ax.text(0.5, -0.054, 'Geographic Longitude', transform=ax.transAxes,
+            ha='center', va='top', fontsize=18)
+    ax.text(-0.12, 0.5, 'Geographic Latitude', transform=ax.transAxes,
+            rotation='vertical', va='center', fontsize=18)
+    fig.text(0.97,
+             0.022,
+             f"[{np.nanmin(scint_map_data.grouped[scint_index]):.2f}, "
+             f"{np.nanmax(scint_map_data.grouped[scint_index]):.2f}] "
+             f"{scint_map_data.interpolation.value.upper()}"
+             f"({scint_map_data.preprocessing.value.upper()})",
+             ha='right',
+             va='bottom',
+             fontsize=18)
+    fig.suptitle(f"{scint_map_data.end_timestamp} UT", fontsize=24)
+
+    cb = fig.colorbar(map, location='right',
+                      ticks=[0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4], shrink=1,
+                      pad=0.02)
+    cb.set_label(label=rf'{scint_map_data.scint_index.index.upper()}', size=18)
+
+    map.figure.axes[0].tick_params(axis="both", labelsize=18)
+    map.figure.axes[1].tick_params(axis="y", labelsize=18)
+
+    fig.subplots_adjust(top=0.93, bottom=0.09, left=0.11, right=1,
+                        hspace=0.0, wspace=0.0)
+
+
 def plot_gnss_stations(ax, scint_map_data):
     for name in sorted(scint_map_data.station_data['name'].unique().to_list()):
         station = scint_map_data.station_data.filter(pl.col('name') == name)

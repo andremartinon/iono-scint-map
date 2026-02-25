@@ -34,7 +34,8 @@ from iono_scint_map.dataset import (Constellation, PreprocessingOptions,
                                     ScintillationIndex, ScintillationMapDataset)
 from iono_scint_map.interpolation import InterpolationOptions
 from iono_scint_map.plot import (create_world_map, plot_igrf,
-                                 plot_scintillation_map, plot_gnss_stations)
+                                 plot_scintillation_map, plot_gnss_stations,
+                                 plot_ipp_map)
 from iono_scint_map.pipeline import (DatasetProcessingPipeline,
                                      DataCleaningAndFiltering, IPPProjection,
                                      ScintIndexProjection, IPPGrouping,
@@ -368,7 +369,7 @@ def plot_scint_map(scint_map_file: Path,
                    output_dir: str):
 
     scint_map_data = ScintillationMapDataset.from_hdf5(scint_map_file)
-
+    print(scint_map_data.grouped)
 
     fig = Figure(figsize=(12.3, 10.8))
     ax = fig.subplots(1, subplot_kw=dict(projection=ccrs.PlateCarree()))
@@ -389,6 +390,79 @@ def plot_scint_map(scint_map_file: Path,
     if not output_dir:
         output_dir = Path('.').resolve()
     file_name = scint_map_file.with_suffix('').name
+    if png:
+        fig.savefig((output_dir / file_name).with_suffix('.png'),
+                    format='png',
+                    dpi=dpi)
+    if pdf:
+        fig.savefig((output_dir / file_name).with_suffix('.pdf'),
+                    format='pdf')
+
+
+# COMMAND: Plot IPPs Map
+@cli.command('plot-ipp')
+# Scintillation map HDF5 file
+@click.argument('scint_map_file',
+                type=click.Path(exists=True, path_type=Path, resolve_path=True))
+@click.option('--dip/--no-dip', is_flag=True, default=True,
+              show_default=True)
+@click.option('--png/--no-png', is_flag=True, default=True,
+              show_default=True)
+@click.option('--pdf/--no-pdf', is_flag=True, default=True,
+              show_default=True)
+@click.option('--dpi', type=click.IntRange(72, 1200),
+              default=300, show_default=True)
+@click.option('--stations/--no-stations', is_flag=True,
+              default=True, show_default=True)
+@click.option('--map-extent', nargs=4, type=click.Tuple(
+    [click.FloatRange(-180.0, 180.0),
+     click.FloatRange(-180.0, 180.0),
+     click.FloatRange(-90.0, 90.0),
+     click.FloatRange(-90.0, 90.0)]),
+              default=[-81.0, -27.0, -39.0, 11.0], show_default=True)
+@click.option('--igrf-extent', nargs=4, type=click.Tuple(
+    [click.FloatRange(-180.0, 180.0),
+     click.FloatRange(-180.0, 180.0),
+     click.FloatRange(-90.0, 90.0),
+     click.FloatRange(-90.0, 90.0)]),
+              default=[-81.0, -27.0, -45.0, 15.0], show_default=True)
+@click.option('--size',
+              type=click.Choice([c**2 for c in range(1, 15)]),
+              default=64, show_default=True)
+@click.option('--output-dir', type=click.Path(
+    exists=True, path_type=Path, resolve_path=True))
+def plot_scint_map(scint_map_file: Path,
+                   dip: bool,
+                   png: bool,
+                   pdf: bool,
+                   dpi: int,
+                   stations: bool,
+                   map_extent: Tuple[float, float, float, float],
+                   igrf_extent: Tuple[float, float, float, float],
+                   size: int,
+                   output_dir: str):
+
+    scint_map_data = ScintillationMapDataset.from_hdf5(scint_map_file)
+
+    fig = Figure(figsize=(12.3, 10.8))
+    ax = fig.subplots(1, subplot_kw=dict(projection=ccrs.PlateCarree()))
+    create_world_map(ax, map_extent, color='black', fontsize=18, linewidth=1)
+
+    if dip:
+        plot_igrf(ax,
+                  scint_map_data.start_timestamp,
+                  extent=igrf_extent,
+                  color='black',
+                  fontsize=18)
+
+    plot_ipp_map(ax, scint_map_data, size)
+
+    if stations:
+        plot_gnss_stations(ax, scint_map_data)
+
+    if not output_dir:
+        output_dir = Path('.').resolve()
+    file_name = scint_map_file.with_suffix('').name + '_ipp'
     if png:
         fig.savefig((output_dir / file_name).with_suffix('.png'),
                     format='png',
