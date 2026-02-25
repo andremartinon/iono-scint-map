@@ -304,48 +304,59 @@ class ScintillationMapDataset:
 
     def to_hdf5(self, file_path: Path = 'scint_map.hdf5'):
         with h5py.File(Path(file_path), 'w') as f:
-            d = f.create_dataset(name='scint-map',
+            map = f.create_dataset(name='scint-map',
                                  shape=self.interpolated_map.shape,
                                  dtype=np.float32,
                                  compression="gzip",
                                  compression_opts=9,
                                  data=self.interpolated_map)
 
-            d.attrs['start_timestamp'] =\
+            map.attrs['start_timestamp'] =\
                 self.start_timestamp.strftime('%Y-%m-%dT%H:%M:%S')
 
-            d.attrs['end_timestamp'] =\
+            map.attrs['end_timestamp'] =\
                 self.end_timestamp.strftime('%Y-%m-%dT%H:%M:%S')
 
-            d.attrs['preprocessing'] = self.preprocessing.value.upper()
-            d.attrs['elevation'] = self.elevation
-            d.attrs['constellations'] = [c.value for c in self.constellations]
-            d.attrs['remove_stations'] = self.remove_stations
-            d.attrs['scint_index'] = self.scint_index.index.upper()
-            d.attrs['scint_index_signal'] = self.scint_index.signal
-            d.attrs['scint_index_type'] = self.scint_index.type.upper()
-            d.attrs['scint_index_limit'] = (self.scint_index.limits['min'],
+            map.attrs['preprocessing'] = self.preprocessing.value.upper()
+            map.attrs['elevation'] = self.elevation
+            map.attrs['constellations'] = [c.value for c in self.constellations]
+            map.attrs['remove_stations'] = self.remove_stations
+            map.attrs['scint_index'] = self.scint_index.index.upper()
+            map.attrs['scint_index_signal'] = self.scint_index.signal
+            map.attrs['scint_index_type'] = self.scint_index.type.upper()
+            map.attrs['scint_index_limit'] = (self.scint_index.limits['min'],
                                             self.scint_index.limits['max'])
-            d.attrs['extent'] = self.map_extent
-            d.attrs['interpolation_grid_resolution'] =\
+            map.attrs['extent'] = self.map_extent
+            map.attrs['interpolation_grid_resolution'] =\
                 self.interpolation_grid_resolution
 
-            d.attrs['ipp_group_resolution'] = self.ipp_group_resolution
-            d.attrs['default_p'] = self.default_p
-            d.attrs['interpolation'] = self.interpolation.value.upper()
-            d.attrs['stations'] =\
+            map.attrs['ipp_group_resolution'] = self.ipp_group_resolution
+            map.attrs['default_p'] = self.default_p
+            map.attrs['interpolation'] = self.interpolation.value.upper()
+            map.attrs['stations'] =\
                 self.scint_data['station'].unique().sort().to_list()
 
-            for station in d.attrs['stations']:
+            for station in map.attrs['stations']:
                 station_info = self.station_data.filter(
                     pl.col('name') == station)
-                d.attrs[station] = [
+                map.attrs[station] = [
                     station_info['lat'],
                     station_info['lon'],
                     station_info['alt']
                 ]
 
-
+            agg_ipps_array = self.grouped.to_numpy()
+            ipps = f.create_dataset(name='agg-ipps',
+                                    shape=agg_ipps_array.shape,
+                                    dtype=np.float32,
+                                    compression="gzip",
+                                    compression_opts=9,
+                                    data=agg_ipps_array)
+            ipps.attrs['columns'] = [self.scint_index.value, 'lat', 'lon']
+            ipps.attrs['aggregation'] = self.preprocessing.aggregation
+            ipps.attrs['grouping'] = self.preprocessing.grouping
+            ipps.attrs['projection'] = self.preprocessing.projection
+            ipps.attrs['adjust_centers'] = self.preprocessing.adjust_centers
 
     @staticmethod
     def from_hdf5(file_path: Path):
@@ -400,6 +411,9 @@ class ScintillationMapDataset:
                     'alt': coordinates[2]
                 })
             scint_map_data.station_data = pl.from_dicts(station_list)
+
+            scint_map_data.grouped = pl.from_numpy(
+                f['agg-ipps'][:], schema=list(f['agg-ipps'].attrs['columns']))
 
         return scint_map_data
 
