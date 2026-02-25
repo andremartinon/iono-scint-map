@@ -19,7 +19,7 @@ import h5py
 import numpy as np
 import polars as pl
 
-from datetime import datetime
+from datetime import datetime, UTC
 from functools import singledispatchmethod
 from pathlib import Path
 from typing import List, Optional, Tuple, Iterable
@@ -304,6 +304,7 @@ class ScintillationMapDataset:
 
     def to_hdf5(self, file_path: Path = 'scint_map.hdf5'):
         with h5py.File(Path(file_path), 'w') as f:
+            # SCINTILLATION MAP
             map = f.create_dataset(name='scint-map',
                                  shape=self.interpolated_map.shape,
                                  dtype=np.float32,
@@ -345,6 +346,40 @@ class ScintillationMapDataset:
                     station_info['alt']
                 ]
 
+            # IPP PROJECTION DATA
+            ipps_array = self.scint_data.with_columns(
+                (
+                    pl.col('datetime').dt.timestamp(time_unit='ms') * 1e-3
+                ).alias('timestamp')
+            ).select([
+                'timestamp',
+                self.scint_index.value,
+                'prn',
+                'i_lat',
+                'i_lon',
+                'constellation'
+            ]).to_numpy()
+
+            constellation_index = lambda x: Constellation._member_names_.index(
+                Constellation(x).name)
+            ipps_array[:, 5] = np.vectorize(
+                constellation_index)(ipps_array[:, 5])
+
+            ipps = f.create_dataset(name='ipps',
+                                    shape=ipps_array.shape,
+                                    dtype=np.float64,
+                                    compression="gzip",
+                                    compression_opts=9,
+                                    data=ipps_array.astype(np.float64))
+
+            ipps.attrs['columns'] = ['datetime',
+                                     self.scint_index.value,
+                                     'prn',
+                                     'lat',
+                                     'lon',
+                                     'constellation']
+
+            # PROJECTED, GROUPED AND AGGREGATED IPPs DATA
             agg_ipps_array = self.grouped.to_numpy()
             ipps = f.create_dataset(name='agg-ipps',
                                     shape=agg_ipps_array.shape,
@@ -361,6 +396,7 @@ class ScintillationMapDataset:
     @staticmethod
     def from_hdf5(file_path: Path):
         with h5py.File(Path(file_path), 'r') as f:
+            # SCINTILLATION MAP
             scint_index = (f"{f['scint-map'].attrs['scint_index']}_"
                            f"{f['scint-map'].attrs['scint_index_signal']}")
             scint_index = ScintillationIndex(scint_index.lower())
@@ -412,25 +448,28 @@ class ScintillationMapDataset:
                 })
             scint_map_data.station_data = pl.from_dicts(station_list)
 
+            # IPP PROJECTION DATA
+            scint_map_data.scint_data = pl.from_numpy(
+                f['ipps'][:], schema=list(f['ipps'].attrs['columns'])
+            )
+
+            scint_map_data.scint_data = scint_map_data.scint_data.with_columns(
+                pl.col('datetime').map_elements(
+                    lambda x: datetime.fromtimestamp(int(x), UTC),
+                    return_dtype=pl.Datetime),
+                pl.col('prn').cast(pl.UInt16),
+                pl.col('constellation').map_elements(
+                    lambda x: Constellation._member_names_[int(x)],
+                    return_dtype=pl.String
+                ),
+                pl.col(str(scint_index.value)).cast(pl.Float32),
+                pl.col('lat').cast(pl.Float32),
+                pl.col('lon').cast(pl.Float32)
+            )
+
+            # PROJECTED, GROUPED AND AGGREGATED IPPs DATA
             scint_map_data.grouped = pl.from_numpy(
-                f['agg-ipps'][:], schema=list(f['agg-ipps'].attrs['columns']))
+                f['agg-ipps'][:], schema=list(f['agg-ipps'].attrs['columns'])
+            )
 
         return scint_map_data
-
-
-if __name__ == '__main__':
-    input_dir = '/environment/development/inpe/src/iono-scint-map/tests_data/'
-    input_dir = Path(input_dir).resolve()
-    scint_map_data = ScintillationMapDataset(ScintillationIndex.S4_1)
-    scint_map_data.add_scintillation_data(input_dir / 'train_map_data.csv')
-    scint_map_data.add_station_data(input_dir / 'inct_stations.parquet')
-
-    print(scint_map_data)
-
-    print(scint_map_data.scint_data.columns)
-    print(scint_map_data.scint_data.dtypes)
-    print(scint_map_data.scint_data)
-
-    print(scint_map_data.station_data.columns)
-    print(scint_map_data.station_data.dtypes)
-    print(scint_map_data.station_data)

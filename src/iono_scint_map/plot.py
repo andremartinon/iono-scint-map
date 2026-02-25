@@ -197,17 +197,27 @@ def plot_scintillation_map(ax, scint_map_data):
                         hspace=0.0, wspace=0.0)
 
 
-def plot_ipp_map(ax, scint_map_data, size: int = 64):
+def plot_ipp_map(ax, scint_map_data, size: int = 64, agg: bool = True):
     fig = ax.get_figure()
     scint_index = scint_map_data.scint_index.value
+
+    if agg:
+        data = scint_map_data.grouped
+        method = f"{scint_map_data.preprocessing.value.upper()}"
+        projection = scint_map_data.preprocessing.projection.capitalize()
+    else:
+        data = scint_map_data.scint_data
+        method = ''
+        projection = 'Slant'
+
 
     cmap = mpl.colormaps.get_cmap("jet").copy()
     cmap.set_under('w', alpha=0)
     cmap.set_bad(alpha=0)
 
-    map = ax.scatter(scint_map_data.grouped['lon'],
-                     scint_map_data.grouped['lat'],
-                     c=scint_map_data.grouped[scint_index],
+    map = ax.scatter(data['lon'],
+                     data['lat'],
+                     c=data[scint_index],
                      vmin=scint_map_data.scint_index.limits['min'],
                      vmax=scint_map_data.scint_index.limits['max'],
                      marker='s',
@@ -229,10 +239,8 @@ def plot_ipp_map(ax, scint_map_data, size: int = 64):
             rotation='vertical', va='center', fontsize=18)
     fig.text(0.97,
              0.022,
-             f"[{np.nanmin(scint_map_data.grouped[scint_index]):.2f}, "
-             f"{np.nanmax(scint_map_data.grouped[scint_index]):.2f}] "
-             f"{scint_map_data.interpolation.value.upper()}"
-             f"({scint_map_data.preprocessing.value.upper()})",
+             f"[{np.nanmin(data[scint_index]):.2f}, "
+             f"{np.nanmax(data[scint_index]):.2f}] {method}",
              ha='right',
              va='bottom',
              fontsize=18)
@@ -241,7 +249,10 @@ def plot_ipp_map(ax, scint_map_data, size: int = 64):
     cb = fig.colorbar(map, location='right',
                       ticks=[0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4], shrink=1,
                       pad=0.02)
-    cb.set_label(label=rf'{scint_map_data.scint_index.index.upper()}', size=18)
+    cb.set_label(
+        label=rf'{projection} {scint_map_data.scint_index.index.upper()}',
+        size=18
+    )
 
     map.figure.axes[0].tick_params(axis="both", labelsize=18)
     map.figure.axes[1].tick_params(axis="y", labelsize=18)
