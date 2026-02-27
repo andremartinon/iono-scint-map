@@ -34,7 +34,9 @@ from iono_scint_map.dataset import (Constellation, PreprocessingOptions,
                                     ScintillationIndex, ScintillationMapDataset)
 from iono_scint_map.interpolation import InterpolationOptions
 from iono_scint_map.plot import (create_world_map, plot_igrf,
-                                 plot_scintillation_map, plot_gnss_stations,
+                                 plot_scintillation_map_axis,
+                                 plot_scintillation_map_no_axis,
+                                 plot_gnss_stations,
                                  plot_ipp_map)
 from iono_scint_map.pipeline import (DatasetProcessingPipeline,
                                      DataCleaningAndFiltering, IPPProjection,
@@ -344,6 +346,12 @@ def create_scint_map(scint_index: ScintillationIndex,
               default=300, show_default=True)
 @click.option('--stations/--no-stations', is_flag=True,
               default=True, show_default=True)
+@click.option('--axis/--no-axis', is_flag=True,
+              default=True, show_default=True)
+@click.option('--clipping/--no-clipping', is_flag=True,
+              default=False, show_default=True)
+@click.option('--convex-hull/--no-convex-hull', is_flag=True,
+              default=False, show_default=True)
 @click.option('--map-extent', nargs=4, type=click.Tuple(
     [click.FloatRange(-180.0, 180.0),
      click.FloatRange(-180.0, 180.0),
@@ -364,15 +372,30 @@ def plot_scint_map(scint_map_file: Path,
                    pdf: bool,
                    dpi: int,
                    stations: bool,
+                   axis: bool,
+                   clipping: bool,
+                   convex_hull: bool,
                    map_extent: Tuple[float, float, float, float],
                    igrf_extent: Tuple[float, float, float, float],
                    output_dir: str):
 
     scint_map_data = ScintillationMapDataset.from_hdf5(scint_map_file)
 
-    fig = Figure(figsize=(12.3, 10.8))
+    if axis:
+        fig = Figure(figsize=(12.3, 10.8))
+        transparent = False
+    else:
+        fig = Figure(figsize=(10.8, 10.8))
+        igrf_extent = scint_map_data.map_extent
+        map_extent = scint_map_data.map_extent
+        transparent = True
+
+
     ax = fig.subplots(1, subplot_kw=dict(projection=ccrs.PlateCarree()))
-    create_world_map(ax, map_extent, color='black', fontsize=18, linewidth=1)
+
+    if axis:
+        create_world_map(ax, map_extent, color='black', fontsize=18,
+                         linewidth=1)
 
     if dip:
         plot_igrf(ax,
@@ -380,8 +403,10 @@ def plot_scint_map(scint_map_file: Path,
                   extent=igrf_extent,
                   color='black',
                   fontsize=18)
-
-    plot_scintillation_map(ax, scint_map_data)
+    if axis:
+        plot_scintillation_map_axis(ax, scint_map_data, clipping, convex_hull)
+    else:
+        plot_scintillation_map_no_axis(ax, scint_map_data, clipping, convex_hull)
 
     if stations:
         plot_gnss_stations(ax, scint_map_data)
@@ -392,7 +417,8 @@ def plot_scint_map(scint_map_file: Path,
     if png:
         fig.savefig((output_dir / file_name).with_suffix('.png'),
                     format='png',
-                    dpi=dpi)
+                    dpi=dpi,
+                    transparent=transparent)
     if pdf:
         fig.savefig((output_dir / file_name).with_suffix('.pdf'),
                     format='pdf')
@@ -445,6 +471,7 @@ def plot_scint_map(scint_map_file: Path,
                    output_dir: str):
 
     scint_map_data = ScintillationMapDataset.from_hdf5(scint_map_file)
+
 
     fig = Figure(figsize=(12.3, 10.8))
     ax = fig.subplots(1, subplot_kw=dict(projection=ccrs.PlateCarree()))

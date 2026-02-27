@@ -24,6 +24,7 @@ import polars as pl
 import ppigrf
 
 from cartopy.mpl.ticker import (LongitudeFormatter, LatitudeFormatter)
+from scipy.spatial import ConvexHull, Delaunay
 
 from iono_scint_map.dataset import ScintillationMapDataset
 
@@ -133,9 +134,8 @@ def plot_igrf(ax, igrf_date, extent=(-180, 180, -90, 90),
               fmt=fmt_igrf_latitude)
 
 
-def plot_scintillation_map(ax, scint_map_data):
-    fig = ax.get_figure()
-
+def plot_scintillation_map(ax, scint_map_data, clipping: bool = False,
+                           show_convex_hull: bool = False):
     lon_min, lon_max, lat_min, lat_max = scint_map_data.map_extent
     lat = np.arange(lat_min,
                     lat_max + scint_map_data.interpolation_grid_resolution,
@@ -145,13 +145,32 @@ def plot_scintillation_map(ax, scint_map_data):
                     scint_map_data.interpolation_grid_resolution)
     grid_lon, grid_lat = np.meshgrid(lon, lat)
 
+    shape = scint_map_data.interpolated_map.shape
+    scint_map = np.flip(scint_map_data.interpolated_map, axis=0).ravel()
+
+    if clipping:
+        points = scint_map_data.scint_data.select(['lat', 'lon']).to_numpy()
+        hull = ConvexHull(points)
+
+        grid_points = np.vstack([grid_lat.ravel(), grid_lon.ravel()]).T
+        delaunay = Delaunay(points[hull.vertices])
+        is_outside = delaunay.find_simplex(grid_points) < 0
+        scint_map[is_outside] = np.nan
+        if show_convex_hull:
+            for simplex in hull.simplices:
+                ax.plot(points[simplex, 1], points[simplex, 0],
+                        c='red',
+                        zorder=1006)
+
+    scint_map = scint_map.reshape(shape)
+
     cmap = mpl.colormaps.get_cmap("jet").copy()
-    cmap.set_under('w', alpha=0)
+    cmap.set_under(alpha=0)
     cmap.set_bad(alpha=0)
 
     map = ax.pcolormesh(grid_lon,
                         grid_lat,
-                        np.flip(scint_map_data.interpolated_map, axis=0),
+                        scint_map,
                         vmin=scint_map_data.scint_index.limits['min'],
                         vmax=scint_map_data.scint_index.limits['max'],
                         cmap=cmap,
@@ -160,6 +179,16 @@ def plot_scintillation_map(ax, scint_map_data):
                         edgecolors='none',
                         antialiased=True,
                         shading='gouraud')
+
+
+    return map
+
+
+def plot_scintillation_map_axis(ax, scint_map_data, clipping: bool = False,
+                           show_convex_hull: bool = False):
+    fig = ax.get_figure()
+
+    map = plot_scintillation_map(ax, scint_map_data, clipping, show_convex_hull)
 
     ax.set_xticks([-80, -70, -60, -50, -40, -30], [],
                   crs=ccrs.PlateCarree())
@@ -195,6 +224,15 @@ def plot_scintillation_map(ax, scint_map_data):
 
     fig.subplots_adjust(top=0.93, bottom=0.09, left=0.11, right=1,
                         hspace=0.0, wspace=0.0)
+
+
+def plot_scintillation_map_no_axis(ax, scint_map_data, clipping: bool = False,
+                           show_convex_hull: bool = False):
+    fig = ax.get_figure()
+
+    map = plot_scintillation_map(ax, scint_map_data, clipping, show_convex_hull)
+
+    fig.subplots_adjust(top=1, bottom=0, left=0, right=1, hspace=0, wspace=0)
 
 
 def plot_ipp_map(ax, scint_map_data, size: int = 64, agg: bool = True):
