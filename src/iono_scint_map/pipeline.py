@@ -18,13 +18,11 @@ import numpy as np
 import polars as pl
 
 from abc import ABC, abstractmethod
-from pathlib import Path
 from typing import List
 
 import iono_scint_map.features as features
 
 from iono_scint_map.dataset import ScintillationIndex, ScintillationMapDataset
-from iono_scint_map.interpolation import InterpolationOptions
 from iono_scint_map.util import Benchmark
 
 
@@ -76,6 +74,10 @@ class DataCleaningAndFiltering(DatasetProcessingStage):
             dataset.scint_data = dataset.scint_data.filter(
                 pl.col('datetime').is_between(dataset.start_timestamp,
                                              dataset.end_timestamp))
+
+        # print(dataset.scint_data['prn'].unique().to_list())
+        # dataset.scint_data = dataset.scint_data.filter(
+        #     pl.col('prn') == 3)
 
         # Elevation cut-off
         dataset.scint_data = dataset.scint_data.filter(
@@ -359,40 +361,4 @@ class MapInterpolation(DatasetProcessingStage):
         dataset.interpolated_map = interp_obj.interpolated_map.copy()
 
         return dataset
-
-if __name__ == '__main__':
-    input_dir = '/environment/development/inpe/src/iono-scint-map/tests_data/'
-    input_dir = Path(input_dir).resolve()
-    scint_map_data = ScintillationMapDataset(
-        ScintillationIndex.S4_1, interpolation=InterpolationOptions.GPR)
-    scint_map_data.add_scintillation_data(input_dir / 'train_map_data.csv')
-    scint_map_data.add_station_data(input_dir / 'inct_stations.parquet')
-
-    print(scint_map_data.scint_data.shape)
-    print(np.nansum(scint_map_data.scint_data['p_1'].to_numpy()))
-    print(np.nanmin(scint_map_data.scint_data['s4_1'].to_numpy()))
-    print(np.nanmax(scint_map_data.scint_data['s4_1'].to_numpy()))
-
-    scint_map_pipeline = DatasetProcessingPipeline()
-    scint_map_pipeline.add_stage(DataCleaningAndFiltering())
-    scint_map_pipeline.add_stage(IPPProjection())
-    scint_map_pipeline.add_stage(ScintIndexProjection())
-    scint_map_pipeline.add_stage(IPPGrouping())
-    scint_map_pipeline.add_stage(IPPAggregation())
-    scint_map_pipeline.add_stage(MapInterpolation())
-
-    scint_map_data = scint_map_pipeline.process(scint_map_data)
-
-    print(scint_map_data.scint_data.shape)
-    print(np.sum(scint_map_data.scint_data['p_1'].to_numpy()))
-    print(np.min(scint_map_data.scint_data['s4_1'].to_numpy()))
-    print(np.max(scint_map_data.scint_data['s4_1'].to_numpy()))
-
-    print(scint_map_data.scint_data.select(['s4_1', 's4_1v', 'el', 'p_1',
-                                            'round_lat', 'round_lon',
-                                            'i_lat', 'i_lon']))
-    print(scint_map_data.grouped)
-
-    print(scint_map_data.interpolated_map)
-    print(scint_map_data.interpolated_map.shape)
 

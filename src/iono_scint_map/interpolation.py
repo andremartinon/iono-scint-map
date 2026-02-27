@@ -159,7 +159,10 @@ class GaussianProcessInterpolation(Interpolation):
         pprint(gpr.get_params(deep=True))
 
         with Benchmark('GPR PREDICT'):
-            self.Y = gpr.predict(self.X, return_cov=False)
+            self.Y, std = gpr.predict(self.X, return_std=True, return_cov=False)
+            print(std)
+            print(std.shape)
+            print(np.min(std), np.max(std))
 
 
 class InterpolationOptions(enum.Enum):
@@ -174,27 +177,3 @@ class InterpolationOptions(enum.Enum):
         obj.interpolation_class = interpolation_class
 
         return obj
-
-
-if __name__ == '__main__':
-    known_lat = [-36.0, -36.0, -36.0, -36.0]
-    known_lon = [-63.0, -59.0, -58.0, -73.0]
-    unknown_lat = [-24.0, -24.0, -24.0, -23.0, -22.0]
-    unknown_lon = [-46.0, -44.0, -43.0, -52.0, -51.0]
-
-    known = np.stack((known_lon, known_lat), axis=-1)
-    unknown = np.stack((unknown_lon, unknown_lat), axis=-1)
-
-    dist = cdist(known, unknown,
-                 metric=RadialBasisFunctionInterpolation.haversine_distance)
-    print(dist)
-
-    dist = hm.cdist(known, unknown)
-    print(dist)
-
-    dist = pdist(known,
-                 metric=RadialBasisFunctionInterpolation.haversine_distance)
-    print(dist)
-
-    dist = hm.pdist(known)
-    print(dist)
