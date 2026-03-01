@@ -14,8 +14,11 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, see <https://www.gnu.org/licenses/>.
+from typing import Tuple
+
 import cartopy.crs as ccrs
 import cartopy.feature as cfeatures
+import cv2
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
@@ -25,6 +28,8 @@ import ppigrf
 
 from cartopy.mpl.ticker import (LongitudeFormatter, LatitudeFormatter)
 from scipy.spatial import ConvexHull, Delaunay
+from shapely.geometry import Polygon
+from shapelysmooth import chaikin_smooth, taubin_smooth
 
 from iono_scint_map.dataset import ScintillationMapDataset
 
@@ -48,13 +53,14 @@ line_style = dict(
      ('densely dashdotdotted', (0, (3, 1, 1, 1, 1, 1)))])
 
 
-def create_world_map(ax, extent=(-180, 180, -90, 90), figsize=(8, 8),
-                     color='gray', fig=None,
-                     show_xlabel=True, show_ylabel=True, fontsize=8,
+def create_world_map(ax,
+                     extent: Tuple[float, float, float, float]=(-180, 180,
+                                                                -90, 90),
+                     color='gray',
+                     show_xlabel=True,
+                     show_ylabel=True,
+                     fontsize=8,
                      linewidth=0.5):
-    # fig, ax = plt.subplots(figsize=figsize, dpi=100, subplot_kw=dict(
-    #     projection=ccrs.PlateCarree()))
-
     ax.set_extent(extent)
 
     land = cfeatures.LAND.with_scale('50m')
@@ -65,9 +71,6 @@ def create_world_map(ax, extent=(-180, 180, -90, 90), figsize=(8, 8),
 
     states = cfeatures.STATES.with_scale('50m')
     ax.add_feature(states, edgecolor=color, linestyle='-', linewidth=linewidth)
-
-    # ax.set_xlabel('Geographic Longitude', fontsize=8)
-    # ax.set_ylabel('Geographic Latitude', fontsize=8)
 
     gl = ax.gridlines(draw_labels=True, linewidth=1, color=color,
                       linestyle=line_style['dotted'])
@@ -134,7 +137,9 @@ def plot_igrf(ax, igrf_date, extent=(-180, 180, -90, 90),
               fmt=fmt_igrf_latitude)
 
 
-def plot_scintillation_map(ax, scint_map_data, clipping: bool = False,
+def plot_scintillation_map(ax,
+                           scint_map_data: ScintillationMapDataset,
+                           clipping: bool = False,
                            show_convex_hull: bool = False):
     lon_min, lon_max, lat_min, lat_max = scint_map_data.map_extent
     lat = np.arange(lat_min,
@@ -151,14 +156,38 @@ def plot_scintillation_map(ax, scint_map_data, clipping: bool = False,
     if clipping:
         points = scint_map_data.scint_data.select(['lat', 'lon']).to_numpy()
         hull = ConvexHull(points)
+        hull_points = points[hull.vertices]
+
+        perimeter = cv2.arcLength(hull_points, True)
+        epsilon = 0.01 * perimeter
+
+        hull_points = np.squeeze(cv2.approxPolyDP(hull_points,
+                                                  epsilon,
+                                                  True))
+
+        expansion_factor = 1.1
+        centroid = np.mean(hull_points, axis=0)
+        expanded_points = centroid + (hull_points - centroid) * expansion_factor
+        hull = ConvexHull(expanded_points)
+
+        vertices = np.column_stack((expanded_points[hull.vertices][:,1],
+                                    expanded_points[hull.vertices][:,0]))
+        polygon = Polygon(vertices)
+        smooth_polygon = chaikin_smooth(polygon)
+        x, y = smooth_polygon.exterior.xy
+
+        smooth_points = np.column_stack((y, x))
+        smooth_hull = ConvexHull(smooth_points)
 
         grid_points = np.vstack([grid_lat.ravel(), grid_lon.ravel()]).T
-        delaunay = Delaunay(points[hull.vertices])
+        delaunay = Delaunay(smooth_points[smooth_hull.vertices])
         is_outside = delaunay.find_simplex(grid_points) < 0
         scint_map[is_outside] = np.nan
+
         if show_convex_hull:
-            for simplex in hull.simplices:
-                ax.plot(points[simplex, 1], points[simplex, 0],
+            for simplex in smooth_hull.simplices:
+                ax.plot(smooth_points[simplex, 1],
+                        smooth_points[simplex, 0],
                         c='red',
                         zorder=1006)
 
@@ -179,13 +208,13 @@ def plot_scintillation_map(ax, scint_map_data, clipping: bool = False,
                         edgecolors='none',
                         antialiased=True,
                         shading='gouraud')
-
-
     return map
 
 
-def plot_scintillation_map_axis(ax, scint_map_data, clipping: bool = False,
-                           show_convex_hull: bool = False):
+def plot_scintillation_map_axis(ax,
+                                scint_map_data: ScintillationMapDataset,
+                                clipping: bool = False,
+                                show_convex_hull: bool = False):
     fig = ax.get_figure()
 
     map = plot_scintillation_map(ax, scint_map_data, clipping, show_convex_hull)
@@ -226,8 +255,10 @@ def plot_scintillation_map_axis(ax, scint_map_data, clipping: bool = False,
                         hspace=0.0, wspace=0.0)
 
 
-def plot_scintillation_map_no_axis(ax, scint_map_data, clipping: bool = False,
-                           show_convex_hull: bool = False):
+def plot_scintillation_map_no_axis(ax,
+                                   scint_map_data: ScintillationMapDataset,
+                                   clipping: bool = False,
+                                   show_convex_hull: bool = False):
     fig = ax.get_figure()
 
     map = plot_scintillation_map(ax, scint_map_data, clipping, show_convex_hull)
@@ -235,7 +266,10 @@ def plot_scintillation_map_no_axis(ax, scint_map_data, clipping: bool = False,
     fig.subplots_adjust(top=1, bottom=0, left=0, right=1, hspace=0, wspace=0)
 
 
-def plot_ipp_map(ax, scint_map_data, size: int = 64, agg: bool = True):
+def plot_ipp_map(ax,
+                 scint_map_data: ScintillationMapDataset,
+                 size: int = 64,
+                 agg: bool = True):
     fig = ax.get_figure()
     scint_index = scint_map_data.scint_index.value
 
@@ -299,7 +333,8 @@ def plot_ipp_map(ax, scint_map_data, size: int = 64, agg: bool = True):
                         hspace=0.0, wspace=0.0)
 
 
-def plot_gnss_stations(ax, scint_map_data):
+def plot_gnss_stations(ax,
+                       scint_map_data: ScintillationMapDataset):
     for name in sorted(scint_map_data.station_data['name'].unique().to_list()):
         station = scint_map_data.station_data.filter(pl.col('name') == name)
         ax.scatter(station['lon'],
