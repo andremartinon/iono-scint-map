@@ -97,7 +97,7 @@ class ScintillationIndex(enum.Enum):
 
     def __new__(cls, value, signal, scint_type, limits):
         obj = object.__new__(cls)
-        obj._value_ = f'{value}_{signal}'
+        obj._value_ = f'{value}' if value == 'roti' else f'{value}_{signal}'
         obj.index = value
         obj.signal = signal
         obj.type = scint_type
@@ -395,10 +395,12 @@ class ScintillationMapDataset:
 
     @staticmethod
     def from_hdf5(file_path: Path):
-        with h5py.File(Path(file_path), 'r') as f:
+        with (h5py.File(Path(file_path), 'r') as f):
             # SCINTILLATION MAP
-            scint_index = (f"{f['scint-map'].attrs['scint_index']}_"
-                           f"{f['scint-map'].attrs['scint_index_signal']}")
+            scint_index = f"{f['scint-map'].attrs['scint_index']}"
+            if scint_index.lower() != 'roti':
+                scint_index = (scint_index +
+                               f"_{f['scint-map'].attrs['scint_index_signal']}")
             scint_index = ScintillationIndex(scint_index.lower())
 
             start = datetime.strptime(f['scint-map'].attrs['start_timestamp'],

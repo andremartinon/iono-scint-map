@@ -156,3 +156,39 @@ def phi60_slant_projection(vertical_phi: Union[Iterable[float], float],
     b = 0.5
 
     return vertical_phi * (f / 1) ** b
+
+
+def roti_vertical_projection(slant_roti: Union[Iterable[float], float],
+                             elevation: Union[Iterable[float], float],
+                             ipp_height: float = 350) -> Union[Iterable[float], float]:
+
+    # Average Earth radius in meters
+    re = EARTH_RADIUS * 1000
+
+    # IPP height in meters
+    h = ipp_height * 1000
+
+    # Elevation in radians
+    el = np.deg2rad(elevation)
+
+    f = 1 / np.sqrt(1 - (re * np.cos(el) / (re + h)) ** 2)
+
+    return slant_roti * (1 / f)
+
+
+def roti_slant_projection(vertical_roti: Union[Iterable[float], float],
+                          elevation: Union[Iterable[float], float],
+                          ipp_height: float = 350) -> Union[Iterable[float], float]:
+
+    # Average Earth radius in meters
+    re = EARTH_RADIUS * 1000
+
+    # IPP height in meters
+    h = ipp_height * 1000
+
+    # Elevation in radians
+    el = np.deg2rad(elevation)
+
+    f = 1 / np.sqrt(1 - (re * np.cos(el) / (re + h)) ** 2)
+
+    return vertical_roti * (f / 1)

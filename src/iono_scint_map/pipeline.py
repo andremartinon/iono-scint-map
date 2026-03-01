@@ -94,13 +94,15 @@ class DataCleaningAndFiltering(DatasetProcessingStage):
             ~pl.col('station').is_in(dataset.remove_stations))
 
         # Default p values for NaN
-        spectral = f'p_{dataset.scint_index.signal}'
-        spectral_values = dataset.scint_data[spectral].to_numpy(writable=True)
-        spectral_values[np.isnan(spectral_values)] = dataset.default_p
-        dataset.scint_data = dataset.scint_data.replace_column(
-            dataset.scint_data.get_column_index(spectral),
-            pl.Series(spectral, spectral_values, pl.Float32)
-        )
+        if dataset.scint_index.index != 'roti':
+            spectral = f'p_{dataset.scint_index.signal}'
+            spectral_values = dataset.scint_data[spectral].to_numpy(
+                writable=True)
+            spectral_values[np.isnan(spectral_values)] = dataset.default_p
+            dataset.scint_data = dataset.scint_data.replace_column(
+                dataset.scint_data.get_column_index(spectral),
+                pl.Series(spectral, spectral_values, pl.Float32)
+            )
 
         # Drop rows with nans and nulls
         dataset.scint_data = dataset.scint_data.drop_nans()
@@ -172,11 +174,18 @@ class ScintIndexProjection(DatasetProcessingStage):
 
             spectral = f'p_{dataset.scint_index.signal}'
 
-            scint_index_vertical = vertical_projection(
-                dataset.scint_data[dataset.scint_index.value].to_numpy(),
-                dataset.scint_data['el'].to_numpy(),
-                dataset.scint_data[spectral].to_numpy()
-            )
+            if dataset.scint_index.index == 'roti':
+                scint_index_vertical = vertical_projection(
+                    dataset.scint_data[dataset.scint_index.value].to_numpy(),
+                    dataset.scint_data['el'].to_numpy()
+                )
+            else:
+                scint_index_vertical = vertical_projection(
+                    dataset.scint_data[dataset.scint_index.value].to_numpy(),
+                    dataset.scint_data['el'].to_numpy(),
+                    dataset.scint_data[spectral].to_numpy()
+                )
+
             dataset.scint_data = dataset.scint_data.with_columns(
                 s4v=scint_index_vertical)
 

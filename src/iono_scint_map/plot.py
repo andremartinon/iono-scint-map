@@ -243,10 +243,18 @@ def plot_scintillation_map_axis(ax,
              fontsize=18)
     fig.suptitle(f"{scint_map_data.end_timestamp} UT", fontsize=24)
 
-    cb = fig.colorbar(map, location='right',
-                      ticks=[0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4], shrink=1,
-                      pad=0.02)
-    cb.set_label(label=rf'{scint_map_data.scint_index.index.upper()}', size=18)
+    if scint_map_data.scint_index.index == 'roti':
+        ticks = [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
+        label = 'ROTI (TECU/s)'
+    elif scint_map_data.scint_index.index == 'phi60':
+        ticks = [0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4]
+        label = r'$\sigma_\phi$ (rad)'
+    else:
+        ticks = [0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4]
+        label = f'{scint_map_data.scint_index.index.upper()}'
+
+    cb = fig.colorbar(map, location='right', ticks=ticks, shrink=1, pad=0.02)
+    cb.set_label(label=label, size=18)
 
     map.figure.axes[0].tick_params(axis="both", labelsize=18)
     map.figure.axes[1].tick_params(axis="y", labelsize=18)
@@ -318,13 +326,18 @@ def plot_ipp_map(ax,
              fontsize=18)
     fig.suptitle(f"{scint_map_data.end_timestamp} UT", fontsize=24)
 
-    cb = fig.colorbar(map, location='right',
-                      ticks=[0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4], shrink=1,
-                      pad=0.02)
-    cb.set_label(
-        label=rf'{projection} {scint_map_data.scint_index.index.upper()}',
-        size=18
-    )
+    if scint_map_data.scint_index.index == 'roti':
+        ticks = [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
+        label = 'ROTI (TECU/s)'
+    elif scint_map_data.scint_index.index == 'phi60':
+        ticks = [0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4]
+        label = r'$\sigma_\phi$ (rad)'
+    else:
+        ticks = [0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4]
+        label = f'{scint_map_data.scint_index.index.upper()}'
+
+    cb = fig.colorbar(map, location='right', ticks=ticks, shrink=1, pad=0.02)
+    cb.set_label(label=rf'{projection} {label}', size=18)
 
     map.figure.axes[0].tick_params(axis="both", labelsize=18)
     map.figure.axes[1].tick_params(axis="y", labelsize=18)

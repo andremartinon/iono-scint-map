@@ -413,6 +413,7 @@ def plot_scint_map(scint_map_file: Path,
 
     if not output_dir:
         output_dir = Path('.').resolve()
+
     file_name = scint_map_file.with_suffix('').name
     if png:
         fig.savefig((output_dir / file_name).with_suffix('.png'),
@@ -472,7 +473,6 @@ def plot_scint_map(scint_map_file: Path,
 
     scint_map_data = ScintillationMapDataset.from_hdf5(scint_map_file)
 
-
     fig = Figure(figsize=(12.3, 10.8))
     ax = fig.subplots(1, subplot_kw=dict(projection=ccrs.PlateCarree()))
     create_world_map(ax, map_extent, color='black', fontsize=18, linewidth=1)
@@ -491,6 +491,7 @@ def plot_scint_map(scint_map_file: Path,
 
     if not output_dir:
         output_dir = Path('.').resolve()
+
     file_name = scint_map_file.with_suffix('').name + '_ipp'
     if png:
         fig.savefig((output_dir / file_name).with_suffix('.png'),
