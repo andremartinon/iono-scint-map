@@ -198,7 +198,8 @@ class ScintillationMapDataset:
     def cast_dataframe(df: pl.DataFrame, dtypes: dict) -> pl.DataFrame:
         for column, dtype in dtypes.items():
             if column == 'datetime':
-                df = df.with_columns(pl.col(column).str.to_datetime(
+                if  df[column].dtype == pl.String:
+                    df = df.with_columns(pl.col(column).str.to_datetime(
                         '%Y-%m-%d %H:%M:%S', time_unit='ms'))
             else:
                 df = df.with_columns(pl.col(column).cast(dtype))
