@@ -173,7 +173,7 @@ def cli():
 
     console.rule()
     console.print(msg_version % {'version': __version__},
-                  justify='center', style='bright_white')
+                  justify='center', style='bold')
     console.print()
     console.print(msg_copyright,
                   justify='center', style='green bold')
