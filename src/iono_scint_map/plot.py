@@ -268,6 +268,7 @@ def plot_scintillation_map_no_axis(ax,
                                    clipping: bool = False,
                                    show_convex_hull: bool = False):
     fig = ax.get_figure()
+    ax.axis('off')
 
     map = plot_scintillation_map(ax, scint_map_data, clipping, show_convex_hull)
 
