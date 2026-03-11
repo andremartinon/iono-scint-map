@@ -153,7 +153,7 @@ def print_create_map_config(scint_dataset: ScintillationMapDataset,
 @click.version_option()
 @click.group()
 def cli():
-    msg_version = _('IONO_SCINT_MAP - Ionospheric Scintillation Map Generation '
+    msg_version = _('IONO-SCINT-MAP - Ionospheric Scintillation Map Generation '
                     'Tool, version %(version)s')
 
     msg_copyright = ('Copyright (C) 2025-2026 André Ricardo Fazanaro Martinon '

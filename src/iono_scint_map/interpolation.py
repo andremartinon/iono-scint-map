@@ -26,9 +26,9 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import ConstantKernel, WhiteKernel
 from typing import Iterable
 
+from iono_scint_map.constant import EARTH_RADIUS
 from iono_scint_map.kernels import ModifiedRationalQuadratic
 from iono_scint_map.util import Benchmark
-
 
 class Interpolation:
 
@@ -95,11 +95,11 @@ class InverseDistanceWeightingInterpolation(Interpolation):
 
 class RadialBasisFunctionInterpolation(Interpolation):
     @staticmethod
-    def haversine_distance(xa, xb, r=6335.439):
-        lon_1 = xa[0]*np.pi/180
-        lat_1 = xa[1]*np.pi/180
-        lon_2 = xb[0]*np.pi/180
-        lat_2 = xb[1]*np.pi/180
+    def haversine_distance(xa, xb, r=EARTH_RADIUS):
+        lon_1 = xa[0] * np.pi/180
+        lat_1 = xa[1] * np.pi/180
+        lon_2 = xb[0] * np.pi/180
+        lat_2 = xb[1] * np.pi/180
 
         return hm.calc_haversine_distance(lon_1, lat_1, lon_2, lat_2, r)
 
@@ -140,29 +140,33 @@ class GaussianProcessInterpolation(Interpolation):
 
         if not kernel:
             kernel = (ConstantKernel(1.0) *
-                      ModifiedRationalQuadratic(length_scale=50, alpha=1.5) +
+                      ModifiedRationalQuadratic(length_scale=50.0, alpha=1.5))
+                      # RationalQuadratic(length_scale=1.0, alpha=1.5) +
                       # ModifiedRationalQuadratic(length_scale=1.0,
                       #                           alpha=1.5) +
                       # ModifiedMatern(length_scale=1.0, nu=2.5) +
-                      WhiteKernel())
+                      # WhiteKernel(noise_level=0.005,
+                      #             noise_level_bounds=[0.001, 1.0]))
 
         gpr = GaussianProcessRegressor(kernel=kernel,
                                        alpha=noise**2,
                                        n_restarts_optimizer=10,
                                        normalize_y=False)
-        with Benchmark('GPR FIT'):
+        with Benchmark(f'PIPELINE STEP [{__class__.__name__}] - '
+                       f'fit -'):
             gpr.fit(self.X_train, self.Y_train)
 
-        print('Kernel parameters:')
-        pprint(gpr.kernel_.get_params(deep=True))
-        print('\nGaussianProcessRegressor parameters:')
-        pprint(gpr.get_params(deep=True))
+        # print('Kernel parameters:')
+        # pprint(gpr.kernel_.get_params(deep=True))
+        # print('\nGaussianProcessRegressor parameters:')
+        # pprint(gpr.get_params(deep=True))
 
-        with Benchmark('GPR PREDICT'):
+        with Benchmark(f'PIPELINE STEP [{__class__.__name__}] - '
+                       f'predict -'):
             self.Y, std = gpr.predict(self.X, return_std=True, return_cov=False)
-            print(std)
-            print(std.shape)
-            print(np.min(std), np.max(std))
+            # print(std)
+            # print(std.shape)
+            # print(np.min(std), np.max(std))
 
 
 class InterpolationOptions(enum.Enum):

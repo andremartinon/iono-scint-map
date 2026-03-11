@@ -23,6 +23,8 @@ build = "~=1.4.0"
 pytest = "~=9.0.2"
 snakeviz = "*"
 line-profiler = "*"
+meson = "*"
+ninja = "*"
 
 [requires]
 python_version = "3"

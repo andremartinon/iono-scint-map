@@ -17,6 +17,7 @@
 import numpy as np
 
 from iono_scint_map.constant import EARTH_RADIUS
+from iono_scint_map.util import Benchmark
 
 
 def calc_haversine_distance(lon_1, lat_1, lon_2, lat_2, r):
@@ -28,7 +29,17 @@ def calc_haversine_distance(lon_1, lat_1, lon_2, lat_2, r):
     c = (np.sin(lat_1) * np.sin(lat_2) +
          np.cos(lat_1) * np.cos(lat_2) * np.cos(d_lon))
 
-    return np.abs(r * np.arctan(np.sqrt(a + b) / c))
+    return np.arctan2(np.sqrt(a + b), c) * r
+
+
+def calc_squared_haversine_distance(lon_1, lat_1, lon_2, lat_2, r):
+    d_lat = np.abs(lat_1 - lat_2)
+    d_lon = np.abs(lon_1 - lon_2)
+
+    a = np.power(np.sin(d_lat/2.0), 2.0)
+    b = np.cos(lat_1) * np.cos(lat_2) * np.power(np.sin(d_lon/2.0), 2.0)
+
+    return (a + b) * r
 
 
 def haversine_distance(xa, xb, r=EARTH_RADIUS):
@@ -37,7 +48,7 @@ def haversine_distance(xa, xb, r=EARTH_RADIUS):
     lon_2 = xb[:, 0]*np.pi/180
     lat_2 = xb[:, 1]*np.pi/180
 
-    return calc_haversine_distance(lon_1, lat_1, lon_2, lat_2, r)
+    return calc_squared_haversine_distance(lon_1, lat_1, lon_2, lat_2, r)
 
 
 def cdist(xa, xb):
@@ -64,14 +75,9 @@ def pdist(x):
             a[j] = np.add.accumulate(a[j])
         return a
 
-    def get_arrays(x):
-        index = nump2(len(x), 2)
-        a_index = index[0, :]
-        b_index = index[1, :]
+    index = nump2(len(x), 2)
+    xa, xb = x[index[0, :]], x[index[1, :]]
 
-        return x[a_index], x[b_index]
-
-    xa, xb = get_arrays(x)
     return haversine_distance(xa, xb)
 
 
@@ -80,16 +86,16 @@ if __name__ == '__main__':
     print(calc_haversine_distance(-46.6333*np.pi/180,
                                   -23.5505*np.pi/180,
                                   -43.1729*np.pi/180,
-                                  -22.9068*np.pi/180,
-                                  r=6335.439))
-    print(calc_haversine_distance(-46.6333*np.pi/180,
+                                  -22.9068*np.pi/180, EARTH_RADIUS))
+    print(calc_squared_haversine_distance(-46.6333*np.pi/180,
                                   -23.5505*np.pi/180,
                                   -43.1729*np.pi/180,
-                                  -22.9068*np.pi/180,
-                                  r=EARTH_RADIUS))
-    print(calc_haversine_distance(np.full(500000000, -46.0)*np.pi/180,
-                                  np.full(500000000, -23.0)*np.pi/180,
-                                  np.full(500000000, -43.2)*np.pi/180,
-                                  np.full(500000000, -22.9)*np.pi/180,
-                                  r=EARTH_RADIUS))
+                                  -22.9068*np.pi/180, EARTH_RADIUS))
 
+    x = np.stack([360 * np.random.random_sample((415)) - 180,
+                  180 * np.random.random_sample((415)) - 90], axis=1)
+
+    print(x)
+    with Benchmark('PDIST'):
+        dists = pdist(x)
+        print(dists.shape)

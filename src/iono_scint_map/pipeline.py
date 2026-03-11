@@ -50,7 +50,7 @@ class DatasetProcessingPipeline:
     def process(self,
                 dataset: ScintillationMapDataset) -> ScintillationMapDataset:
         for stage in self.stages:
-            with Benchmark(f'PIPELINE STAGE [{stage.__class__.__name__}]'):
+            with Benchmark(f'PIPELINE STAGE [{stage.__class__.__name__}] -'):
                 if stage.validate(dataset):
                     dataset = stage.process(dataset)
         return dataset
@@ -284,7 +284,8 @@ class IPPAggregation(DatasetProcessingStage):
         agg_scint_index = np.array([], dtype='float32')
         lat = np.array([], dtype='float32')
         lon = np.array([], dtype='float32')
-        with Benchmark('AGG QUANTILE'):
+        with Benchmark(f'PIPELINE STEP [{__class__.__name__}] - '
+                       f'3rd quantile aggregation -'):
             for name, data in df.group_by(['round_lat', 'round_lon']):
                 new_data = data.filter(
                     pl.col(scint_index) >= pl.col(scint_index).quantile(
@@ -297,7 +298,8 @@ class IPPAggregation(DatasetProcessingStage):
                 lat = np.append(lat, new_data['i_lat'].mean())
                 lon = np.append(lon, new_data['i_lon'].mean())
 
-        with Benchmark('CREATE DATAFRAME'):
+        with Benchmark(f'PIPELINE STEP [{__class__.__name__}] - '
+                       f'create dataframe -'):
             grouped = pl.DataFrame(data={
                 'scint_index': agg_scint_index, 'lat': lat, 'lon': lon,
             }, schema={
@@ -357,8 +359,6 @@ class MapInterpolation(DatasetProcessingStage):
         interp_obj = dataset.interpolation.interpolation_class(
             extent=dataset.map_extent,
             step=dataset.interpolation_grid_resolution)
-
-        print(interp_obj, interp_obj.shape, dataset.grouped.shape)
 
         interp_obj.interpolate(
             dataset.grouped['lon'].to_numpy(),

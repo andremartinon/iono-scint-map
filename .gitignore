@@ -205,7 +205,11 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+haversine_build/
 dataset_initial_doc_bck.py
+haversine.f90
+haversine_metric_test.py
+geodesy.cpython-312-x86_64-linux-gnu.so
 *.hdf5
 *.png
 *.pdf
