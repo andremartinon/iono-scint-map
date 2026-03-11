@@ -49,7 +49,7 @@ dev = [
 ]
 
 [project.scripts]
-iono-scint-map = "iono_scint_map.cli:main"
+iono-scint-map = "iono_scint_map.cli:cli"
 
 [tool.setuptools.dynamic]
 version = {attr = "iono_scint_map.__version__"}
