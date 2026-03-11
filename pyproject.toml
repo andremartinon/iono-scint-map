@@ -31,7 +31,7 @@ maintainers = [
 ]
 description = "An ionospheric scintillation map generation toolkit"
 readme = "README.md"
-license = "GPL-2.0-or-later"
+license = "GPL-3.0-or-later"
 license-files = ["LICENSE"]
 keywords = ["Ionospheric scintillation map",
             "Interpolation",
@@ -47,6 +47,9 @@ dev = [
     "build~=1.4.0",
     "pytest~=9.0.2"
 ]
+
+[project.scripts]
+iono-scint-map = "iono_scint_map.cli:main"
 
 [tool.setuptools.dynamic]
 version = {attr = "iono_scint_map.__version__"}
