@@ -1,5 +1,7 @@
-# IONO_SCINT_MAP - An ionospheric scintillation map generation toolkit
-# Copyright (C) 2026  André Ricardo Fazanaro Martinon, Stephan Stephany, and
+# IONO-SCINT-MAP - An ionospheric scintillation map generation toolkit
+# Copyright (C) 2026 National Institute for Space Research (INPE)
+#
+# Authors: André Ricardo Fazanaro Martinon, Stephan Stephany, and
 # Eurico Rodrigues de Paula
 #
 # This program is free software: you can redistribute it and/or modify it under
