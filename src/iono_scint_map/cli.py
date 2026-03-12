@@ -19,6 +19,7 @@
 import cartopy.crs as ccrs
 import click
 import datetime
+import logging
 
 from gettext import gettext as _
 from matplotlib.figure import Figure
@@ -31,7 +32,7 @@ from rich.text import Text
 from typing import Tuple, Iterable, List, Optional
 
 from iono_scint_map import __version__
-from iono_scint_map.constant import CONSOLE_WIDTH
+from iono_scint_map.constant import CONSOLE_WIDTH, IONO_SCINT_MAP_LOG_LEVEL
 from iono_scint_map.dataset import (Constellation, PreprocessingOptions,
                                     ScintillationIndex, ScintillationMapDataset)
 from iono_scint_map.interpolation import InterpolationOptions
@@ -171,6 +172,17 @@ def cli():
     for academic work (publications, thesis etc).
     <https://doi.org/10.1051/swsc/2023015>
     """
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format='[%(asctime)s.%(msecs)03d] %(levelname)s %(name)s: %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    root = logging.getLogger()
+    root.setLevel(level=logging.getLevelName(IONO_SCINT_MAP_LOG_LEVEL))
+
+    logger = logging.getLogger(__name__)
+
     msg_version = _('IONO-SCINT-MAP - Ionospheric Scintillation Map Generation '
                     'Tool, version %(version)s')
 

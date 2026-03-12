@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, see <https://www.gnu.org/licenses/>.
 
+import logging
 import time
 
 # define the benchmark context manager
@@ -36,10 +37,11 @@ class Benchmark(object):
     # exit the context manager
     def __exit__(self, exc_type, exc_value, traceback):
         # record the end time
+        logger = logging.getLogger('benchmark')
         self.time_end = time.perf_counter_ns()
         # calculate the duration
         self.duration = self.time_end - self.time_start
         # report the duration
-        print(f'{self.name} took {self.duration*1e-9:.9f} seconds')
+        logger.debug(f'{self.name} took {self.duration*1e-9:.9f} seconds')
         # do not suppress any exception
         return False

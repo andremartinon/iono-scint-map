@@ -16,6 +16,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, see <https://www.gnu.org/licenses/>.
+import os
 import polars as pl
 
 from typing import List, Iterable
@@ -63,3 +64,5 @@ STATION_DATA_DTYPES: dict[str, type[pl.Float32|pl.String]] = {
     'y': pl.Float32,
     'z': pl.Float32
 }
+
+IONO_SCINT_MAP_LOG_LEVEL = os.getenv('IONO_SCINT_MAP_LOG_LEVEL', 'INFO')
