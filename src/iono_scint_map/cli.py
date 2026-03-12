@@ -1,5 +1,7 @@
-# IONO_SCINT_MAP - An ionospheric scintillation map generation toolkit
-# Copyright (C) 2026  André Ricardo Fazanaro Martinon, Stephan Stephany, and
+# IONO-SCINT-MAP - An ionospheric scintillation map generation toolkit
+# Copyright (C) 2026 National Institute for Space Research (INPE)
+#
+# Authors: André Ricardo Fazanaro Martinon, Stephan Stephany, and
 # Eurico Rodrigues de Paula
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -156,10 +158,9 @@ def cli():
     msg_version = _('IONO-SCINT-MAP - Ionospheric Scintillation Map Generation '
                     'Tool, version %(version)s')
 
-    msg_copyright = ('Copyright (C) 2025-2026 André Ricardo Fazanaro Martinon '
-                     'and others.')
+    msg_copyright = ('Copyright (C) 2026 National Institute for Space Research (INPE)')
 
-    msg_inpe = _('National Institute for Space Research - (INPE)')
+    msg_authors = _('Authors: André R. F. Martinon, Stephan Stephany, and Eurico R. de Paula.')
 
     msg = _("This is free software; see the source code for copying conditions."
             " There is ABSOLUTELY NO WARRANTY; not even for MERCHANTABILITY or "
@@ -176,9 +177,9 @@ def cli():
     console.print(msg_version % {'version': __version__},
                   justify='center', style='bold')
     console.print()
-    console.print(msg_copyright,
+    console.print(msg_authors,
                   justify='center', style='green bold')
-    console.print(msg_inpe,
+    console.print(msg_copyright,
                   justify='center', style='cyan')
     console.rule()
     console.print(Padding(Text(msg, justify='full')))
