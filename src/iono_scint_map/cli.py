@@ -155,12 +155,30 @@ def print_create_map_config(scint_dataset: ScintillationMapDataset,
 @click.version_option()
 @click.group()
 def cli():
+    """
+    IONO-SCINT-MAP - Ionospheric Scintillation Map Generation Tool
+
+    Copyright (C) 2026 National Institute for Space Research (INPE)
+
+    Authors: André R. F. Martinon, Stephan Stephany, and Eurico R. de Paula.
+
+    This is free software; see the source code for copying conditions.
+    There is ABSOLUTELY NO WARRANTY; not even for MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE. For details, type 'iono-scint-map show'.
+
+    Please reference the paper 'A new approach for the generation of real-time
+    GNSS low-latitude ionospheric scintillation maps' when using the software
+    for academic work (publications, thesis etc).
+    <https://doi.org/10.1051/swsc/2023015>
+    """
     msg_version = _('IONO-SCINT-MAP - Ionospheric Scintillation Map Generation '
                     'Tool, version %(version)s')
 
-    msg_copyright = ('Copyright (C) 2026 National Institute for Space Research (INPE)')
+    msg_copyright = ('Copyright (C) 2026 National Institute for Space Research '
+                     '(INPE)')
 
-    msg_authors = _('Authors: André R. F. Martinon, Stephan Stephany, and Eurico R. de Paula.')
+    msg_authors = _('Authors: André R. F. Martinon, Stephan Stephany, and '
+                    'Eurico R. de Paula.')
 
     msg = _("This is free software; see the source code for copying conditions."
             " There is ABSOLUTELY NO WARRANTY; not even for MERCHANTABILITY or "
