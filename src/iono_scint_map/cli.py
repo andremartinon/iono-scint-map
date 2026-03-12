@@ -203,7 +203,7 @@ def show_warranty_information() -> None:
                        'for more details.')
     msg_warranty_3 = _('You should have received a copy of the GNU General '
                        'Public License along with IONO-SCINT-MAP; see the file '
-                       'COPYING. If not, see <https://www.gnu.org/licenses/>.')
+                       'LICENSE. If not, see <https://www.gnu.org/licenses/>.')
 
     console = Console(width=CONSOLE_WIDTH)
     console.print(Padding(
