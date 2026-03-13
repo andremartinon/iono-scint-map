@@ -211,5 +211,6 @@ haversine.f90
 haversine_metric_test.py
 geodesy.cpython-312-x86_64-linux-gnu.so
 *.hdf5
+*.h5
 *.png
 *.pdf
