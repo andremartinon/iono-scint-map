@@ -154,6 +154,7 @@ def print_create_map_config(scint_dataset: ScintillationMapDataset,
 
 
 @click.version_option()
+@click.help_option(help=_('Show the help message and exit.'))
 @click.group()
 def cli():
     """
@@ -169,7 +170,7 @@ def cli():
 
     Please reference the paper 'A new approach for the generation of real-time
     GNSS low-latitude ionospheric scintillation maps' when using the software
-    for academic work (publications, thesis etc).
+    for academic work (publications, thesis etc). Please check:
     <https://doi.org/10.1051/swsc/2023015>
     """
 
@@ -198,7 +199,7 @@ def cli():
             "'iono-scint-map show'.\n\nPlease reference the paper 'A new "
             "approach for the generation of real-time GNSS low-latitude "
             "ionospheric scintillation maps' when using the software for "
-            "academic work (publications, thesis etc). "
+            "academic work (publications, thesis etc). Please check: "
             "<https://doi.org/10.1051/swsc/2023015>")
 
     console = Console(width=CONSOLE_WIDTH, highlight=False)
@@ -246,7 +247,7 @@ def show_warranty_information() -> None:
 @cli.command('create')
 # Scintillation index
 @click.option('-s', '--scint-index',
-              type=click.Choice(ScintillationIndex, case_sensitive=False),
+              type=click.Choice(ScintillationIndex, case_sensitive=True),
               default=ScintillationIndex.S4_1, show_default=True,
               help=_('Select the scintillation index to generate the '
                      'scintillation map. The suffixes represent the signal used'
@@ -269,7 +270,7 @@ def show_warranty_information() -> None:
                      'to be considered valid.'))
 # Constellations
 @click.option('-c', '--constellation',
-              type=click.Choice(Constellation, case_sensitive=False),
+              type=click.Choice(Constellation, case_sensitive=True),
               default=[Constellation.GPS, Constellation.GLONASS,
                        Constellation.GALILEO, Constellation.BEIDOU],
               show_default=True, multiple=True,
@@ -277,7 +278,7 @@ def show_warranty_information() -> None:
                      'filtering scintillation data set.'))
 # Preprocessing options
 @click.option('-p', '--preprocessing',
-              type=click.Choice(PreprocessingOptions, case_sensitive=False),
+              type=click.Choice(PreprocessingOptions, case_sensitive=True),
               default=PreprocessingOptions.VQI, show_default=True,
               help=_('Choose a preprocessing option for grouping and '
                      'aggregating IPPs: '
@@ -292,7 +293,7 @@ def show_warranty_information() -> None:
                      'the centroid)'))
 # Interpolation options
 @click.option('-i', '--interpolation',
-              type=click.Choice(InterpolationOptions, case_sensitive=False),
+              type=click.Choice(InterpolationOptions, case_sensitive=True),
               default=InterpolationOptions.GPR, show_default=True,
               help=_('Choose an interpolation algorithm: '
                      'GDA (Scipy GridData); '
@@ -321,7 +322,7 @@ def show_warranty_information() -> None:
 @click.option('--default-p',
               type=click.FLOAT,
               default=2.6, show_default=True,
-              help=_('Spectral slope of detrended phase in the 0.1 to 25Hz '
+              help=_('Spectral slope of detrended phase in the 0.1 to 25.0Hz '
                      'range'))
 @click.option('--start',
               type=click.DateTime(formats=['%Y-%m-%dT%H:%M:%S']), default=None,
@@ -342,6 +343,7 @@ def show_warranty_information() -> None:
                 type=click.Path(dir_okay=True,
                                 path_type=Path,
                                 resolve_path=True), default='scint_map.h5')
+@click.help_option(help=_('Show the above options and exit.'))
 def create_scint_map(scint_index: ScintillationIndex,
                      extent: Tuple[float, float, float, float],
                      elevation: float,
@@ -357,23 +359,24 @@ def create_scint_map(scint_index: ScintillationIndex,
                      scint_data_file: Path,
                      gnss_stations_file: Path,
                      output_file: Path):
-    """Create an ionospheric scintillation map.
+    """Create an ionospheric scintillation map datafile.
 
     Arguments:
 
     SCINT_DATA_FILE: file path
 
-        The scintillation data file path. Only CSV and PARQUET formats are
+        The input scintillation data file path. Only CSV and PARQUET formats are
         accepted.
 
     GNSS_STATIONS_FILE: file path
 
-        The GNSS stations information data file path. Only CSV and PARQUET
+        The input GNSS stations information data file path. Only CSV and PARQUET
         formats are accepted.
 
     OUTPUT_FILE: file path (Default: ./scint_map.h5)
 
-        The file path for the output interpolated map data in HDF5 format.
+        The file path for the matrix of grid points of the interpolated map data
+        in HDF5 format.
     """
 
     scint_map_data = ScintillationMapDataset(
@@ -477,7 +480,7 @@ def plot_scint_map(scint_map_file: Path,
                    map_extent: Tuple[float, float, float, float],
                    dip_extent: Tuple[float, float, float, float],
                    output_dir: str):
-    """Plot an ionospheric scintillation map.
+    """Plot an ionospheric scintillation map from the datafile.
 
     Arguments:
 
@@ -596,7 +599,7 @@ def plot_scint_map(scint_map_file: Path,
                    dip_extent: Tuple[float, float, float, float],
                    size: int,
                    output_dir: str):
-    """Plot an IPP (Ionospheric Pierce Points) samples map.
+    """Plot a map of IPP (Ionospheric Pierce Points) samples.
 
     Arguments:
 
