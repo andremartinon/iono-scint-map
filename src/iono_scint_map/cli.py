@@ -40,7 +40,7 @@ from iono_scint_map.plot import (create_world_map, plot_igrf,
                                  plot_scintillation_map_axis,
                                  plot_scintillation_map_no_axis,
                                  plot_gnss_stations,
-                                 plot_ipp_map)
+                                 plot_ipp_map_axis, plot_ipp_map_no_axis)
 from iono_scint_map.pipeline import (DatasetProcessingPipeline,
                                      DataCleaningAndFiltering, IPPProjection,
                                      ScintIndexProjection, IPPGrouping,
@@ -153,8 +153,9 @@ def print_create_map_config(scint_dataset: ScintillationMapDataset,
     console.print(table)
 
 
-@click.version_option()
+
 @click.help_option(help=_('Show the help message and exit.'))
+@click.version_option()
 @click.group()
 def cli():
     """
@@ -199,7 +200,7 @@ def cli():
             "'iono-scint-map show'.\n\nPlease reference the paper 'A new "
             "approach for the generation of real-time GNSS low-latitude "
             "ionospheric scintillation maps' when using the software for "
-            "academic work (publications, thesis etc). Please check: "
+            "academic work (publications, thesis etc). Please check:\n"
             "<https://doi.org/10.1051/swsc/2023015>")
 
     console = Console(width=CONSOLE_WIDTH, highlight=False)
@@ -219,7 +220,7 @@ def cli():
 
 @cli.command('show')
 def show_warranty_information() -> None:
-    """Show software licensing information.
+    """Show the software licensing information.
     """
 
     msg_warranty_1 = _('IONO-SCINT-MAP is free software: you can redistribute '
@@ -234,7 +235,7 @@ def show_warranty_information() -> None:
                        'for more details.')
     msg_warranty_3 = _('You should have received a copy of the GNU General '
                        'Public License along with IONO-SCINT-MAP; see the file '
-                       'LICENSE. If not, see <https://www.gnu.org/licenses/>.')
+                       'LICENSE. If not, see:\n<https://www.gnu.org/licenses/>.')
 
     console = Console(width=CONSOLE_WIDTH)
     console.print(Padding(
@@ -251,8 +252,8 @@ def show_warranty_information() -> None:
               default=ScintillationIndex.S4_1, show_default=True,
               help=_('Select the scintillation index to generate the '
                      'scintillation map. The suffixes represent the signal used'
-                     ' to measure the indices. For example, use S4_1 for S4 '
-                     'measured in the L1CA band, or equivalent.'))
+                     ' to measure the indices. For example, use S4_1 for the '
+                     'S4 index measured in the L1CA band, or equivalent.'))
 # Map extent
 @click.option('-x', '--extent', nargs=4, type=click.Tuple(
     [click.FloatRange(-180.0, 180.0),
@@ -275,7 +276,7 @@ def show_warranty_information() -> None:
                        Constellation.GALILEO, Constellation.BEIDOU],
               show_default=True, multiple=True,
               help=_('Choose the GNSS constellations to be considered when '
-                     'filtering scintillation data set.'))
+                     'filtering scintillation dataset or all four by default.'))
 # Preprocessing options
 @click.option('-p', '--preprocessing',
               type=click.Choice(PreprocessingOptions, case_sensitive=True),
@@ -316,8 +317,9 @@ def show_warranty_information() -> None:
 @click.option('-r', '--remove-station',
               type=click.STRING,
               default=None, show_default=True, multiple=True,
-              help=_('Remove all the GNSS station data from the scintillation '
-                     'data set. Inform each ones you want to remove.'))
+              help=_('Remove the specified GNSS station data from the '
+                     'scintillation dataset. Inform each station to be removed '
+                     'using its 4-digit identifier separately.'))
 # Default p
 @click.option('--default-p',
               type=click.FLOAT,
@@ -420,9 +422,10 @@ def create_scint_map(scint_index: ScintillationIndex,
                 type=click.Path(exists=True, path_type=Path, resolve_path=True))
 @click.option('--dip/--no-dip', is_flag=True, default=True,
               show_default=True,
-              help=_('Choose to plot, or not, the magnetic latitudes. The '
+              help=_('Choose to plot, or not, the magnetic Latitude lines. The '
                      'magnetic inclination is calculated using the IGRF model '
-                     'valid for the date range of the scintillation data set.'))
+                     'valid for the range of dates of the scintillation '
+                     'dataset.'))
 @click.option('--png/--no-png', is_flag=True, default=True,
               show_default=True,
               help=_('Choose to save, or not, the resulting plot in the PNG '
@@ -439,10 +442,9 @@ def create_scint_map(scint_index: ScintillationIndex,
               default=True, show_default=True,
               help=_('Choose to plot, or not, a marker for each GNSS station '
                      'location'))
-@click.option('--axis/--no-axis', is_flag=True,
+@click.option('--grid/--no-grid', is_flag=True,
               default=True, show_default=True,
-              help=_('Choose to plot, or not, the Longitude and Latitude '
-                     'axes.'))
+              help=_('Choose to plot, or not, the geographic coordinate grid.'))
 @click.option('--clipping/--no-clipping', is_flag=True,
               default=False, show_default=True,
               help=_('Choose to clipping, or not, the map to the area '
@@ -456,29 +458,22 @@ def create_scint_map(scint_index: ScintillationIndex,
      click.FloatRange(-90.0, 90.0),
      click.FloatRange(-90.0, 90.0)]),
               default=[-81.0, -27.0, -39.0, 11.0], show_default=True,
-              help=_('Set the boundary box used to plot the map.'))
-@click.option('--dip-extent', nargs=4, type=click.Tuple(
-    [click.FloatRange(-180.0, 180.0),
-     click.FloatRange(-180.0, 180.0),
-     click.FloatRange(-90.0, 90.0),
-     click.FloatRange(-90.0, 90.0)]),
-              default=[-81.0, -27.0, -45.0, 15.0], show_default=True,
-              help=_('Set the boundary box used to plot the magnetic '
-                     'latitudes.'))
+              help=_('Set the range of geographic longitudes and latitudes of '
+                     'the boundary box used to plot the map.'))
 @click.option('--output-dir', type=click.Path(
     exists=True, path_type=Path, resolve_path=True),
               help=_('Set the output directory path. Default: ./'))
+@click.help_option(help=_('Show the above options and exit.'))
 def plot_scint_map(scint_map_file: Path,
                    dip: bool,
                    png: bool,
                    pdf: bool,
                    dpi: int,
                    stations: bool,
-                   axis: bool,
+                   grid: bool,
                    clipping: bool,
                    convex_hull: bool,
                    map_extent: Tuple[float, float, float, float],
-                   dip_extent: Tuple[float, float, float, float],
                    output_dir: str):
     """Plot an ionospheric scintillation map from the datafile.
 
@@ -486,27 +481,32 @@ def plot_scint_map(scint_map_file: Path,
 
     SCINT_MAP_FILE: file path
 
-        The interpolated scintillation map data file path. Only HDF5 files
-        generated by the iono-scint-map create command is accepted.
+         The file path to the matrix of grid points of the interpolated
+         scintillation map. Only HDF5 files generated by the iono-scint-map
+         create command are accepted.
     """
 
     scint_map_data = ScintillationMapDataset.from_hdf5(scint_map_file)
 
-    if axis:
+    if grid:
         fig = Figure(figsize=(12.3, 10.8))
         transparent = False
+        dip_extent = list(map_extent)
+        dip_extent[2] -= 6
+        dip_extent[3] += 4
     else:
         fig = Figure(figsize=(10.8, 10.8))
-        igrf_extent = scint_map_data.map_extent
+        dip_extent = scint_map_data.map_extent
         map_extent = scint_map_data.map_extent
         transparent = True
 
-
     ax = fig.subplots(1, subplot_kw=dict(projection=ccrs.PlateCarree()))
 
-    if axis:
+    if grid:
         create_world_map(ax, map_extent, color='black', fontsize=18,
                          linewidth=1)
+    else:
+        ax.set_extent(map_extent)
 
     if dip:
         plot_igrf(ax,
@@ -514,7 +514,7 @@ def plot_scint_map(scint_map_file: Path,
                   extent=dip_extent,
                   color='black',
                   fontsize=18)
-    if axis:
+    if grid:
         plot_scintillation_map_axis(ax, scint_map_data, clipping, convex_hull)
     else:
         plot_scintillation_map_no_axis(ax, scint_map_data, clipping, convex_hull)
@@ -543,9 +543,10 @@ def plot_scint_map(scint_map_file: Path,
                 type=click.Path(exists=True, path_type=Path, resolve_path=True))
 @click.option('--dip/--no-dip', is_flag=True, default=True,
               show_default=True,
-              help=_('Choose to plot, or not, the magnetic latitudes. The '
+              help=_('Choose to plot, or not, the magnetic Latitude lines. The '
                      'magnetic inclination is calculated using the IGRF model '
-                     'valid for the date range of the scintillation data set.'))
+                     'valid for the range of dates of the scintillation '
+                     'dataset.'))
 @click.option('--png/--no-png', is_flag=True, default=True,
               show_default=True,
               help=_('Choose to save, or not, the resulting plot in the PNG '
@@ -562,25 +563,22 @@ def plot_scint_map(scint_map_file: Path,
               default=True, show_default=True,
               help=_('Choose to plot, or not, a marker for each GNSS station '
                      'location'))
+@click.option('--grid/--no-grid', is_flag=True,
+              default=True, show_default=True,
+              help=_('Choose to plot, or not, the geographic coordinate grid.'))
 @click.option('--agg/--no-agg', is_flag=True, default=False,
               show_default=True,
-              help=_('Choose between show the grouped and aggregated IPPs or '
-                     'all the original IPPs before grouping and aggregation.'))
+              help=_('Choose between show the IPPs that were grouped and '
+                     'aggregated or all the original IPPs before grouping and '
+                     'aggregation.'))
 @click.option('--map-extent', nargs=4, type=click.Tuple(
     [click.FloatRange(-180.0, 180.0),
      click.FloatRange(-180.0, 180.0),
      click.FloatRange(-90.0, 90.0),
      click.FloatRange(-90.0, 90.0)]),
               default=[-81.0, -27.0, -39.0, 11.0], show_default=True,
-              help=_('Set the boundary box used to plot the map.'))
-@click.option('--dip-extent', nargs=4, type=click.Tuple(
-    [click.FloatRange(-180.0, 180.0),
-     click.FloatRange(-180.0, 180.0),
-     click.FloatRange(-90.0, 90.0),
-     click.FloatRange(-90.0, 90.0)]),
-              default=[-81.0, -27.0, -45.0, 15.0], show_default=True,
-              help=_('Set the boundary box used to plot the magnetic '
-                     'latitudes.'))
+              help=_('Set the range of geographic longitudes and latitudes of '
+                     'the boundary box used to plot the map.'))
 @click.option('--size',
               type=click.Choice([c**2 for c in range(1, 15)]),
               default=64, show_default=True,
@@ -588,15 +586,16 @@ def plot_scint_map(scint_map_file: Path,
 @click.option('--output-dir', type=click.Path(
     exists=True, path_type=Path, resolve_path=True),
               help=_('Set the output directory path. Default: ./'))
-def plot_scint_map(scint_map_file: Path,
+@click.help_option(help=_('Show the above options and exit.'))
+def plot_ipp_map(scint_map_file: Path,
                    dip: bool,
                    png: bool,
                    pdf: bool,
                    dpi: int,
                    stations: bool,
+                   grid: bool,
                    agg: bool,
                    map_extent: Tuple[float, float, float, float],
-                   dip_extent: Tuple[float, float, float, float],
                    size: int,
                    output_dir: str):
     """Plot a map of IPP (Ionospheric Pierce Points) samples.
@@ -605,15 +604,33 @@ def plot_scint_map(scint_map_file: Path,
 
     SCINT_MAP_FILE: file path
 
-        The interpolated scintillation map data file path. Only HDF5 files
-        generated by the iono-scint-map create command is accepted.
+        The file path to the interpolated scintillation map datafile. Only HDF5
+        files generated by the iono-scint-map create command is accepted.
     """
 
     scint_map_data = ScintillationMapDataset.from_hdf5(scint_map_file)
 
-    fig = Figure(figsize=(12.3, 10.8))
+    if grid:
+        fig = Figure(figsize=(12.3, 10.8))
+        transparent = False
+        dip_extent = list(map_extent)
+        dip_extent[2] -= 6
+        dip_extent[3] += 4
+    else:
+        fig = Figure(figsize=(10.8, 10.8))
+        dip_extent = scint_map_data.map_extent
+        map_extent = scint_map_data.map_extent
+        transparent = True
+
+
     ax = fig.subplots(1, subplot_kw=dict(projection=ccrs.PlateCarree()))
-    create_world_map(ax, map_extent, color='black', fontsize=18, linewidth=1)
+
+    if grid:
+        create_world_map(ax, map_extent, color='black', fontsize=18,
+                         linewidth=1)
+    else:
+        ax.set_extent(map_extent)
+
 
     if dip:
         plot_igrf(ax,
@@ -621,8 +638,10 @@ def plot_scint_map(scint_map_file: Path,
                   extent=dip_extent,
                   color='black',
                   fontsize=18)
-
-    plot_ipp_map(ax, scint_map_data, size, agg)
+    if grid:
+        plot_ipp_map_axis(ax, scint_map_data, size, agg)
+    else:
+        plot_ipp_map_no_axis(ax, scint_map_data, size, agg)
 
     if stations:
         plot_gnss_stations(ax, scint_map_data)
@@ -634,7 +653,8 @@ def plot_scint_map(scint_map_file: Path,
     if png:
         fig.savefig((output_dir / file_name).with_suffix('.png'),
                     format='png',
-                    dpi=dpi)
+                    dpi=dpi,
+                    transparent=transparent)
     if pdf:
         fig.savefig((output_dir / file_name).with_suffix('.pdf'),
                     format='pdf')

@@ -183,6 +183,7 @@ def plot_scintillation_map(ax,
 
         grid_points = np.vstack([grid_lat.ravel(), grid_lon.ravel()]).T
         delaunay = Delaunay(smooth_points[smooth_hull.vertices])
+        # delaunay = Delaunay(points[hull.vertices])
         is_outside = delaunay.find_simplex(grid_points) < 0
         scint_map[is_outside] = np.nan
 
@@ -192,6 +193,11 @@ def plot_scintillation_map(ax,
                         smooth_points[simplex, 0],
                         c='red',
                         zorder=1006)
+            # for simplex in hull.simplices:
+            #     ax.plot(points[simplex, 1],
+            #             points[simplex, 0],
+            #             c='red',
+            #             zorder=1006)
 
     scint_map = scint_map.reshape(shape)
 
@@ -277,7 +283,7 @@ def plot_scintillation_map_no_axis(ax,
     fig.subplots_adjust(top=1, bottom=0, left=0, right=1, hspace=0, wspace=0)
 
 
-def plot_ipp_map(ax,
+def plot_ipp_map_axis(ax,
                  scint_map_data: ScintillationMapDataset,
                  size: int = 64,
                  agg: bool = True):
@@ -347,6 +353,36 @@ def plot_ipp_map(ax,
 
     fig.subplots_adjust(top=0.93, bottom=0.09, left=0.11, right=1,
                         hspace=0.0, wspace=0.0)
+
+def plot_ipp_map_no_axis(ax,
+                 scint_map_data: ScintillationMapDataset,
+                 size: int = 64,
+                 agg: bool = True):
+    fig = ax.get_figure()
+    ax.axis('off')
+
+    scint_index = scint_map_data.scint_index.value
+
+    if agg:
+        data = scint_map_data.grouped
+    else:
+        data = scint_map_data.scint_data
+
+    cmap = mpl.colormaps.get_cmap("jet").copy()
+    cmap.set_under('w', alpha=0)
+    cmap.set_bad(alpha=0)
+    ax.set_aspect(1)
+    map = ax.scatter(data['lon'],
+                     data['lat'],
+                     c=data[scint_index],
+                     vmin=scint_map_data.scint_index.limits['min'],
+                     vmax=scint_map_data.scint_index.limits['max'],
+                     marker='s',
+                     s=size,
+                     cmap=cmap)
+
+
+    fig.subplots_adjust(top=1, bottom=0, left=0, right=1, hspace=0, wspace=0)
 
 
 def plot_gnss_stations(ax,
