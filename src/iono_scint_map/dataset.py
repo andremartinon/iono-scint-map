@@ -1,8 +1,7 @@
-# IONO-SCINT-MAP - An ionospheric scintillation map generation toolkit
-# Copyright (C) 2026 National Institute for Space Research (INPE)
+# This file is part of IONO-SCINT-MAP - an ionospheric scintillation map
+# generation toolkit.
 #
-# Authors: André Ricardo Fazanaro Martinon, Stephan Stephany, and
-# Eurico Rodrigues de Paula
+# Copyright (C) 2026 National Institute for Space Research (INPE)
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -16,6 +15,7 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, see <https://www.gnu.org/licenses/>.
+
 import enum
 import h5py
 import numpy as np
@@ -30,6 +30,14 @@ from iono_scint_map.constant import (SCINT_DATA_MUST_HAVE_COLUMNS,
                                      STATION_DATA_MUST_HAVE_COLUMNS,
                                      SCINT_DATA_DTYPES, STATION_DATA_DTYPES)
 from iono_scint_map.interpolation import InterpolationOptions
+
+__author__ = ['André Ricardo Fazanaro Martinon']
+__copyright__ = 'Copyright 2026, National Institute for Space Research (INPE)'
+__credits__ = ['Stephan Stephany', 'Eurico Rodrigues de Paula']
+__license__ = 'AGPL-3.0-or-later'
+__maintainer__ = 'André Ricardo Fazanaro Martinon'
+__email__ = 'andre.martinon@inpe.br'
+__status__ = 'Production'
 
 
 class Constellation(enum.StrEnum):

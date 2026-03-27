@@ -1,8 +1,7 @@
-# IONO-SCINT-MAP - An ionospheric scintillation map generation toolkit
-# Copyright (C) 2026 National Institute for Space Research (INPE)
+# This file is part of IONO-SCINT-MAP - an ionospheric scintillation map
+# generation toolkit.
 #
-# Authors: André Ricardo Fazanaro Martinon, Stephan Stephany, and
-# Eurico Rodrigues de Paula
+# Copyright (C) 2026 National Institute for Space Research (INPE)
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -16,10 +15,19 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, see <https://www.gnu.org/licenses/>.
+
 import numpy as np
 
 from iono_scint_map.constant import EARTH_RADIUS
 from iono_scint_map.util import Benchmark
+
+__author__ = ['André Ricardo Fazanaro Martinon']
+__copyright__ = 'Copyright 2026, National Institute for Space Research (INPE)'
+__credits__ = ['Stephan Stephany', 'Eurico Rodrigues de Paula']
+__license__ = 'AGPL-3.0-or-later'
+__maintainer__ = 'André Ricardo Fazanaro Martinon'
+__email__ = 'andre.martinon@inpe.br'
+__status__ = 'Production'
 
 
 def calc_haversine_distance(lon_1, lat_1, lon_2, lat_2, r):

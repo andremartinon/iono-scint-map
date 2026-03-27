@@ -22,5 +22,5 @@ __copyright__ = 'Copyright 2026, National Institute for Space Research (INPE)'
 __credits__ = ['Stephan Stephany', 'Eurico Rodrigues de Paula']
 __license__ = 'AGPL-3.0-or-later'
 __maintainer__ = 'André Ricardo Fazanaro Martinon'
-__email__ = "andre.martinon@inpe.br"
-__status__ = "Production"
+__email__ = 'andre.martinon@inpe.br'
+__status__ = 'Production'
