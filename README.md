@@ -1,31 +1,36 @@
-# Ionospheric Scintillation Map Generation Tool (IONO_SCINT_MAP)
+# IONO-SCINT-MAP - Ionospheric Scintillation Map Generation Tool 
 
-The IONO_SCINT_MAP library provides tools for the generation of three types of 
-scintillation maps, employed in scintillation monitoring, which are related to
-the scintillation indexes S4, $\sigma_\phi$ and ROTI. The making of these 
-scintillation maps requires the interpolation of IPP samples, given by the 
-ionospheric scintillation index values for each IPP of each satellite-station 
-link considering the set of GNSS stations of the given area and time interval. 
+
+The IONO-SCINT-MAP library provides tools for generating three types of 
+ionospheric scintillation maps, which are related to the S4, $\sigma_\phi$, and
+ROTI scintillation indices. These maps can be used to monitor ionospheric 
+scintillation, in studies with historical data, and also to train machine 
+learning models that predict ionospheric scintillation.
+
+The making of these scintillation maps requires the interpolation of IPP 
+samples, given by the ionospheric scintillation index values for each IPP of 
+each satellite-station link considering the set of GNSS stations of the given 
+area and time interval.
 Interpolation is performed with the aim of filling in IPP data gaps, resulting 
 in a smoother map for the considered grid in longitude and latitude, and for 
 the integration interval.
 
-These maps were implemented using a new approach (MARTINON et al., 2023). This 
-new approach consists of a set of preprocessing options and an interpolation
-method. It allows to generate more accurate scintillation maps with a low 
-computational cost that is compatible with real-time demands. Former approaches
-to investigate ionospheric scintillation over the Brazilian territory include
-the generation of regional S4 index maps (REZENDE et al., 2007), and Vani (2018)
-employed different preprocessing options and interpolation methods.
+These maps were implemented using a new approach proposed by MARTINON et al. 
+(2023). This new approach consists of a set of preprocessing options and an 
+interpolation method. It allows to generate more accurate scintillation maps 
+with a low computational cost that is compatible with real-time demands. Former 
+approaches to investigate ionospheric scintillation over the Brazilian territory 
+include the generation of regional S4 index maps (REZENDE et al., 2007), and 
+VANI (2018) employed different preprocessing options and interpolation methods.
 
 ## Approach for generating scintillation maps
 
 The proposed approach (MARTINON et al., 2023) is named GPR(VQI), since it uses
-the Gaussian Process Regression for interpolation of the samples of a 15-minute
-interval, and the specific set of preprocessing options VQI, which corresponds
+the Gaussian Process Regression for interpolation of the IPP samples, and the 
+specific set of preprocessing options VQI, which corresponds
 to the use of the vertical projection of values of the considered scintillation
 index reduced by the average value above the 3rd quartile for the group of 
-15-minute samples of the considered aggregation cell. The interpolation grid has
+IPP samples of the considered aggregation cell. The interpolation grid has
 the same spatial resolution of the map 0.25° $\times$ 0.25°, spanning latitudes
 -39° to 9° and longitudes -78° to -30°, and forming a regular grid of 193 
 $\times$ 193 grid points. A coarser aggregation grid with 1.0° $\times$ 1.0°
