@@ -25,11 +25,11 @@ from pprint import pprint
 from scipy.interpolate import griddata, Rbf
 from scipy.spatial.distance import cdist, pdist
 from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import ConstantKernel, WhiteKernel
+from sklearn.gaussian_process.kernels import (ConstantKernel, WhiteKernel,
+                                              RationalQuadratic)
 from typing import Iterable
 
 from iono_scint_map.constant import EARTH_RADIUS
-from iono_scint_map.kernels import ModifiedRationalQuadratic
 from iono_scint_map.util import Benchmark
 
 class Interpolation:
@@ -140,20 +140,26 @@ class GaussianProcessInterpolation(Interpolation):
 
         super().interpolate(known_longitudes, known_latitudes, known_values)
 
+        # Monkey patching Scipy's cdist and pdist for equivalents
+        # implementations which uses the haversine metric
+        cdist = hm.cdist
+        pdist = hm.pdist
+
         if not kernel:
             kernel = (ConstantKernel(1.0) *
-                      ModifiedRationalQuadratic(length_scale=50.0, alpha=1.5))
-                      # RationalQuadratic(length_scale=1.0, alpha=1.5) +
-                      # ModifiedRationalQuadratic(length_scale=1.0,
+                      RationalQuadratic(length_scale=50.0, alpha=1.5))
+                      # RationalQuadratic(length_scale=50.0, alpha=1.5) +
+                      # RationalQuadratic(length_scale=1.0,
                       #                           alpha=1.5) +
-                      # ModifiedMatern(length_scale=1.0, nu=2.5) +
+                      # Matern(length_scale=1.0, nu=2.5) +
                       # WhiteKernel(noise_level=0.005,
                       #             noise_level_bounds=[0.001, 1.0]))
 
         gpr = GaussianProcessRegressor(kernel=kernel,
                                        alpha=noise**2,
                                        n_restarts_optimizer=10,
-                                       normalize_y=False)
+                                       normalize_y=False,
+                                       random_state=1)
         with Benchmark(f'PIPELINE STEP [{__class__.__name__}] - '
                        f'fit -'):
             gpr.fit(self.X_train, self.Y_train)
@@ -162,6 +168,7 @@ class GaussianProcessInterpolation(Interpolation):
         # pprint(gpr.kernel_.get_params(deep=True))
         # print('\nGaussianProcessRegressor parameters:')
         # pprint(gpr.get_params(deep=True))
+        print(gpr.score(self.X_train, self.Y_train))
 
         with Benchmark(f'PIPELINE STEP [{__class__.__name__}] - '
                        f'predict -'):
