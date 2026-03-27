@@ -193,6 +193,8 @@ def cli():
     root = logging.getLogger()
     root.setLevel(level=logging.getLevelName(IONO_SCINT_MAP_LOG_LEVEL))
 
+    logging.getLogger('matplotlib').setLevel(logging.WARNING)
+
     logger = logging.getLogger(__name__)
 
     msg_version = _('IONO-SCINT-MAP - Ionospheric Scintillation Map Generation '
