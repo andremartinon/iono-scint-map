@@ -31,7 +31,7 @@ maintainers = [
 ]
 description = "An ionospheric scintillation map generation toolkit"
 readme = "README.md"
-license = "GPL-3.0-or-later"
+license = "AGPL-3.0-or-later"
 license-files = ["LICENSE"]
 keywords = ["Ionospheric scintillation map",
             "Interpolation",

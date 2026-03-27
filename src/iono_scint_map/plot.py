@@ -1,8 +1,7 @@
-# IONO-SCINT-MAP - An ionospheric scintillation map generation toolkit
-# Copyright (C) 2026 National Institute for Space Research (INPE)
+# This file is part of IONO-SCINT-MAP - an ionospheric scintillation map
+# generation toolkit.
 #
-# Authors: André Ricardo Fazanaro Martinon, Stephan Stephany, and
-# Eurico Rodrigues de Paula
+# Copyright (C) 2026 National Institute for Space Research (INPE)
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -16,7 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, see <https://www.gnu.org/licenses/>.
-from typing import Tuple
 
 import cartopy.crs as ccrs
 import cartopy.feature as cfeatures
@@ -31,10 +29,18 @@ import ppigrf
 from cartopy.mpl.ticker import (LongitudeFormatter, LatitudeFormatter)
 from scipy.spatial import ConvexHull, Delaunay
 from shapely.geometry import Polygon
-from shapelysmooth import chaikin_smooth, taubin_smooth
+from shapelysmooth import chaikin_smooth
+from typing import Tuple
 
 from iono_scint_map.dataset import ScintillationMapDataset
 
+__author__ = ['André Ricardo Fazanaro Martinon']
+__copyright__ = 'Copyright 2026, National Institute for Space Research (INPE)'
+__credits__ = ['Stephan Stephany', 'Eurico Rodrigues de Paula']
+__license__ = 'AGPL-3.0-or-later'
+__maintainer__ = 'André Ricardo Fazanaro Martinon'
+__email__ = "andre.martinon@inpe.br"
+__status__ = "Production"
 
 line_style = dict(
     [('solid',               (0, ())),
@@ -119,11 +125,8 @@ def plot_igrf(ax, igrf_date, extent=(-180, 180, -90, 90),
                              grid_lat,
                              h=0,
                              date=igrf_date)
-    inclination, declination = ppigrf.get_inclination_declination(Be,
-                                                                  Bn,
-                                                                  Bu)
-    table = np.rad2deg(np.arctan(np.tan(np.deg2rad(
-        inclination[0])) * 0.5))
+    inclination, declination = ppigrf.get_inclination_declination(Be, Bn, Bu)
+    table = np.rad2deg(np.arctan(np.tan(np.deg2rad(inclination[0])) * 0.5))
 
     contour = ax.contour(grid_lon,
                          grid_lat,
@@ -183,7 +186,6 @@ def plot_scintillation_map(ax,
 
         grid_points = np.vstack([grid_lat.ravel(), grid_lon.ravel()]).T
         delaunay = Delaunay(smooth_points[smooth_hull.vertices])
-        # delaunay = Delaunay(points[hull.vertices])
         is_outside = delaunay.find_simplex(grid_points) < 0
         scint_map[is_outside] = np.nan
 
@@ -193,11 +195,6 @@ def plot_scintillation_map(ax,
                         smooth_points[simplex, 0],
                         c='red',
                         zorder=1006)
-            # for simplex in hull.simplices:
-            #     ax.plot(points[simplex, 1],
-            #             points[simplex, 0],
-            #             c='red',
-            #             zorder=1006)
 
     scint_map = scint_map.reshape(shape)
 
