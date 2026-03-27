@@ -26,7 +26,7 @@ from scipy.interpolate import griddata, Rbf
 from scipy.spatial.distance import cdist, pdist
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import (ConstantKernel, WhiteKernel,
-                                              RationalQuadratic)
+                                              RationalQuadratic, Matern, RBF)
 from typing import Iterable
 
 from iono_scint_map.constant import EARTH_RADIUS_KM
@@ -156,19 +156,18 @@ class GaussianProcessInterpolation(Interpolation):
 
         if not kernel:
             kernel = (ConstantKernel(1.0) *
-                      RationalQuadratic(length_scale=50.0, alpha=1.5))
-                      # RationalQuadratic(length_scale=50.0, alpha=1.5) +
-                      # RationalQuadratic(length_scale=1.0,
-                      #                           alpha=1.5) +
-                      # Matern(length_scale=1.0, nu=2.5) +
+                      RationalQuadratic(length_scale=1.0, alpha=1.5))
+                      # RationalQuadratic(length_scale=1.0, alpha=1.5) +
+                      # Matern(length_scale=1.0, nu=0.5))
+                      # RBF(length_scale=1.0) +
                       # WhiteKernel(noise_level=0.005,
                       #             noise_level_bounds=[0.001, 1.0]))
 
         gpr = GaussianProcessRegressor(kernel=kernel,
                                        alpha=noise**2,
-                                       n_restarts_optimizer=10,
+                                       n_restarts_optimizer=20,
                                        normalize_y=False,
-                                       random_state=None)
+                                       random_state=2026)
         with Benchmark(f'PIPELINE STEP [{__class__.__name__}] - '
                        f'fit -'):
             gpr.fit(self.X_train, self.Y_train)
