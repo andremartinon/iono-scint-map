@@ -168,7 +168,7 @@ class GaussianProcessInterpolation(Interpolation):
                                        alpha=noise**2,
                                        n_restarts_optimizer=10,
                                        normalize_y=False,
-                                       random_state=1)
+                                       random_state=None)
         with Benchmark(f'PIPELINE STEP [{__class__.__name__}] - '
                        f'fit -'):
             gpr.fit(self.X_train, self.Y_train)
