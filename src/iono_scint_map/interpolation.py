@@ -29,7 +29,7 @@ from sklearn.gaussian_process.kernels import (ConstantKernel, WhiteKernel,
                                               RationalQuadratic)
 from typing import Iterable
 
-from iono_scint_map.constant import EARTH_RADIUS
+from iono_scint_map.constant import EARTH_RADIUS_KM
 from iono_scint_map.util import Benchmark
 
 __author__ = ['André Ricardo Fazanaro Martinon']
@@ -106,7 +106,7 @@ class InverseDistanceWeightingInterpolation(Interpolation):
 
 class RadialBasisFunctionInterpolation(Interpolation):
     @staticmethod
-    def haversine_distance(xa, xb, r=EARTH_RADIUS):
+    def haversine_distance(xa, xb, r=EARTH_RADIUS_KM):
         lon_1 = xa[0] * np.pi/180
         lat_1 = xa[1] * np.pi/180
         lon_2 = xb[0] * np.pi/180

@@ -18,7 +18,7 @@
 
 import numpy as np
 
-from iono_scint_map.constant import EARTH_RADIUS
+from iono_scint_map.constant import EARTH_RADIUS_KM
 from iono_scint_map.util import Benchmark
 
 __author__ = ['André Ricardo Fazanaro Martinon']
@@ -52,7 +52,7 @@ def calc_squared_haversine_distance(lon_1, lat_1, lon_2, lat_2, r):
     return (a + b) * r
 
 
-def haversine_distance(xa, xb, r=EARTH_RADIUS):
+def haversine_distance(xa, xb, r=EARTH_RADIUS_KM):
     lon_1 = xa[:, 0]*np.pi/180
     lat_1 = xa[:, 1]*np.pi/180
     lon_2 = xb[:, 0]*np.pi/180
@@ -93,14 +93,14 @@ def pdist(x):
 
 if __name__ == '__main__':
 
-    print(calc_haversine_distance(-46.6333*np.pi/180,
-                                  -23.5505*np.pi/180,
-                                  -43.1729*np.pi/180,
-                                  -22.9068*np.pi/180, EARTH_RADIUS))
-    print(calc_squared_haversine_distance(-46.6333*np.pi/180,
-                                  -23.5505*np.pi/180,
-                                  -43.1729*np.pi/180,
-                                  -22.9068*np.pi/180, EARTH_RADIUS))
+    print(calc_haversine_distance(-46.6333 * np.pi / 180,
+                                  -23.5505 * np.pi / 180,
+                                  -43.1729 * np.pi / 180,
+                                  -22.9068 * np.pi / 180, EARTH_RADIUS_KM))
+    print(calc_squared_haversine_distance(-46.6333 * np.pi / 180,
+                                          -23.5505 * np.pi / 180,
+                                          -43.1729 * np.pi / 180,
+                                          -22.9068 * np.pi / 180, EARTH_RADIUS_KM))
 
     x = np.stack([360 * np.random.random_sample((415)) - 180,
                   180 * np.random.random_sample((415)) - 90], axis=1)

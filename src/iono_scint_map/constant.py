@@ -32,28 +32,9 @@ __status__ = 'Production'
 
 CONSOLE_WIDTH: int = 80
 
-# Average Earth radius
-# ? 6335.439 ?
-EARTH_RADIUS = 6371
+EARTH_RADIUS_KM: float = 6371.0087714
 
-SCINT_DATA_MUST_HAVE_COLUMNS: List[Iterable[str]] = [
-    ('datetime', 'timestamp',),
-    ('prn', 'svid',),
-    ('az', 'azimuth',),
-    ('el', 'elevation',),
-    ('station', 'station_id', 'station_name',),
-    ('constellation', 'sat_system', 'gnss_system', 'system',)
-]
-
-STATION_DATA_MUST_HAVE_COLUMNS: List[Iterable[str]] = [
-    ('name', 'id', 'station_name', 'station_id',),
-    ('lat', 'latitude',),
-    ('lon', 'longitude', 'long',),
-    ('alt', 'altitude',),
-    ('x',),
-    ('y',),
-    ('z',)
-]
+IONO_SCINT_MAP_LOG_LEVEL = os.getenv('IONO_SCINT_MAP_LOG_LEVEL', 'INFO')
 
 SCINT_DATA_DTYPES: dict[str, type[pl.Datetime|pl.UInt16|pl.Float32|pl.String]] = {
     'datetime': pl.Datetime,
@@ -63,6 +44,15 @@ SCINT_DATA_DTYPES: dict[str, type[pl.Datetime|pl.UInt16|pl.Float32|pl.String]] =
     'station': pl.String,
     'constellation': pl.String
 }
+
+SCINT_DATA_MUST_HAVE_COLUMNS: List[Iterable[str]] = [
+    ('datetime', 'timestamp',),
+    ('prn', 'svid',),
+    ('az', 'azimuth',),
+    ('el', 'elevation',),
+    ('station', 'station_id', 'station_name',),
+    ('constellation', 'sat_system', 'gnss_system', 'system',)
+]
 
 STATION_DATA_DTYPES: dict[str, type[pl.Float32|pl.String]] = {
     'name': pl.String,
@@ -74,4 +64,12 @@ STATION_DATA_DTYPES: dict[str, type[pl.Float32|pl.String]] = {
     'z': pl.Float32
 }
 
-IONO_SCINT_MAP_LOG_LEVEL = os.getenv('IONO_SCINT_MAP_LOG_LEVEL', 'INFO')
+STATION_DATA_MUST_HAVE_COLUMNS: List[Iterable[str]] = [
+    ('name', 'id', 'station_name', 'station_id',),
+    ('lat', 'latitude',),
+    ('lon', 'longitude', 'long',),
+    ('alt', 'altitude',),
+    ('x',),
+    ('y',),
+    ('z',)
+]

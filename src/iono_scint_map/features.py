@@ -20,7 +20,7 @@ import numpy as np
 
 from typing import Union, Iterable, Tuple
 
-from iono_scint_map.constant import EARTH_RADIUS
+from iono_scint_map.constant import EARTH_RADIUS_KM
 
 __author__ = ['André Ricardo Fazanaro Martinon']
 __copyright__ = 'Copyright 2026, National Institute for Space Research (INPE)'
@@ -61,7 +61,7 @@ def ipp_geometric_method(receiver_lat: Union[Iterable[float], float],
     """
 
     # Average Earth radius in meters
-    re = EARTH_RADIUS * 1000
+    re = EARTH_RADIUS_KM * 1000
 
     # IPP height in meters
     h = ipp_height * 1000
@@ -87,7 +87,7 @@ def s4_vertical_projection(slant_s4: Union[Iterable[float], float],
         Union[Iterable[float], float]:
 
     # Average Earth radius in meters
-    re = EARTH_RADIUS * 1000
+    re = EARTH_RADIUS_KM * 1000
 
     # IPP height in meters
     h = ipp_height * 1000
@@ -109,7 +109,7 @@ def s4_slant_projection(vertical_s4: Union[Iterable[float], float],
         Union[Iterable[float], float]:
 
     # Average Earth radius in meters
-    re = EARTH_RADIUS * 1000
+    re = EARTH_RADIUS_KM * 1000
 
     # IPP height in meters
     h = ipp_height * 1000
@@ -130,7 +130,7 @@ def phi60_vertical_projection(slant_phi: Union[Iterable[float], float],
                               ipp_height: float = 350) -> Union[Iterable[float], float]:
 
     # Average Earth radius in meters
-    re = EARTH_RADIUS * 1000
+    re = EARTH_RADIUS_KM * 1000
 
     # IPP height in meters
     h = ipp_height * 1000
@@ -151,7 +151,7 @@ def phi60_slant_projection(vertical_phi: Union[Iterable[float], float],
                            ipp_height: float = 350) -> Union[Iterable[float], float]:
 
     # Average Earth radius in meters
-    re = EARTH_RADIUS * 1000
+    re = EARTH_RADIUS_KM * 1000
 
     # IPP height in meters
     h = ipp_height * 1000
@@ -171,7 +171,7 @@ def roti_vertical_projection(slant_roti: Union[Iterable[float], float],
                              ipp_height: float = 350) -> Union[Iterable[float], float]:
 
     # Average Earth radius in meters
-    re = EARTH_RADIUS * 1000
+    re = EARTH_RADIUS_KM * 1000
 
     # IPP height in meters
     h = ipp_height * 1000
@@ -189,7 +189,7 @@ def roti_slant_projection(vertical_roti: Union[Iterable[float], float],
                           ipp_height: float = 350) -> Union[Iterable[float], float]:
 
     # Average Earth radius in meters
-    re = EARTH_RADIUS * 1000
+    re = EARTH_RADIUS_KM * 1000
 
     # IPP height in meters
     h = ipp_height * 1000
