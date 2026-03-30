@@ -352,9 +352,10 @@ class IPPAggregation(DatasetProcessingStage):
 
         return dataset
 
+
 class MapInterpolation(DatasetProcessingStage):
-    def __init__(self):
-        pass
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
 
     def validate(self, dataset: ScintillationMapDataset) -> bool:
         if (isinstance(dataset.grouped, pl.DataFrame) and
@@ -373,7 +374,8 @@ class MapInterpolation(DatasetProcessingStage):
         interp_obj.interpolate(
             dataset.grouped['lon'].to_numpy(),
             dataset.grouped['lat'].to_numpy(),
-            dataset.grouped[dataset.scint_index.value].to_numpy()
+            dataset.grouped[dataset.scint_index.value].to_numpy(),
+            **self.kwargs
         )
 
         interp_obj.interpolated_map[np.isnan(interp_obj.interpolated_map)] = 0
