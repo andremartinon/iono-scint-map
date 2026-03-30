@@ -17,11 +17,12 @@
 # this program; if not, see <https://www.gnu.org/licenses/>.
 
 import enum
+import logging
 import numpy as np
+import pprint
 
 import iono_scint_map.haversine_metric as hm
 
-from pprint import pprint
 from scipy.interpolate import griddata, Rbf
 from scipy.spatial.distance import cdist, pdist
 from sklearn.gaussian_process import GaussianProcessRegressor
@@ -148,6 +149,7 @@ class GaussianProcessInterpolation(Interpolation):
                     noise=1e-10):
 
         super().interpolate(known_longitudes, known_latitudes, known_values)
+        logger = logging.getLogger(__class__.__name__)
 
         # Monkey patching Scipy's cdist and pdist for equivalents
         # implementations which uses the haversine metric
@@ -172,11 +174,14 @@ class GaussianProcessInterpolation(Interpolation):
                        f'fit -'):
             gpr.fit(self.X_train, self.Y_train)
 
-        # print('Kernel parameters:')
-        # pprint(gpr.kernel_.get_params(deep=True))
-        # print('\nGaussianProcessRegressor parameters:')
-        # pprint(gpr.get_params(deep=True))
-        print(gpr.score(self.X_train, self.Y_train))
+        msg = pprint.pformat(
+            gpr.kernel_.get_params(deep=True), indent=2, width=80)
+        logger.debug(f'Kernel parameters:\n{msg}')
+
+        msg = pprint.pformat(gpr.get_params(deep=True), indent=2, width=80)
+        logger.debug(f'GaussianProcessRegressor parameters:\n{msg}')
+
+        logger.debug(f'GPR score: {gpr.score(self.X_train, self.Y_train)}')
 
         with Benchmark(f'PIPELINE STEP [{__class__.__name__}] - '
                        f'predict -'):
