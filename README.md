@@ -1,12 +1,14 @@
-<h1 style="text-align: center">
+<h1 align="center">
   📦 IONO-SCINT-MAP
 </h1>
 
-<p style="text-align: center; font-weight: bold; font-size: large">
-Ionospheric Scintillation Map Generation Tool
+<br />
+
+<p align="center">
+<b>Ionospheric Scintillation Map Generation Tool</b>
 </p>
 
-<p style="text-align: center">
+<p align="center">
    <a href="https://www.gnu.org/licenses/agpl-3.0">
       <img src="https://img.shields.io/badge/License-GNU_AGPLv3-purple.svg?style=flat-square&logo=gnu"
        alt="License: AGPL v3" />
@@ -24,6 +26,8 @@ Ionospheric Scintillation Map Generation Tool
    alt="DOI to cite IONO-SCINT-MAP">
    </a>
 </p>
+
+<hr/>
 
 ## 🌟 Highlights
 
