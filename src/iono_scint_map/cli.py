@@ -163,7 +163,6 @@ def print_create_map_config(scint_dataset: ScintillationMapDataset,
     console.print(table)
 
 
-
 @click.help_option(help=_('Show the help message and exit.'))
 @click.version_option()
 @click.group()
