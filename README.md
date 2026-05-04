@@ -27,8 +27,6 @@ Ionospheric Scintillation Map Generation Tool
 
 ## 🌟 Highlights
 
----
-
 Here are the main takeaways of this tool:
 
 - It can be used as a Python package or as a command-line interface tool;
@@ -40,8 +38,6 @@ Here are the main takeaways of this tool:
 - Many options for plotting scintillation maps.
 
 ## ℹ️ Overview
-
----
 
 The IONO-SCINT-MAP is a tool which allow to interpolate scintillation data, i.e.
 ionospheric scintillation index measurements, from a network of distributed GNSS
@@ -75,8 +71,6 @@ in MARTINON (2024).
 
 ### ✍️ Authors
 
----
-
 This software is copyrighted to the National Institute for Space Research 
 (INPE/Brazil), and developed by the following researchers:
 
@@ -91,8 +85,6 @@ This software is copyrighted to the National Institute for Space Research
 
 ## ⬇️ Installation
 
----
-
 To install the iono-scint-map tool, you must use a Python package manager and
 install the package from this GitHub repository, as shown below:
 
@@ -101,8 +93,6 @@ $ pip install git+ssh://git@github.com/andremartinon/iono-scint-map.git
 ```
 
 ## 🚀 Usage
-
----
 
 To use iono-scint-map as a command-line tool (CLI), after installation you can
 run iono-scint-map command from a terminal, as shown below:
@@ -216,8 +206,6 @@ fig.savefig((output_dir / file_name).with_suffix('.pdf'), format='pdf')
 ```
 
 ## 💭 Feedback and Contributing
-
----
 
 Use the
 ["Issues"](https://github.com/andremartinon/iono-scint-map/issues) section of the 
