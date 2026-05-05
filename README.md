@@ -29,15 +29,15 @@
 
 ## 🌟 Highlights
 
-Here are the main takeaways of this tool:
+Here are the main highlights of this tool:
 
 - It can be used as a Python package or as a command-line interface tool;
-- Gaussian Process Regression interpolation method;
-- Preprocessing options and the interpolation method allow for the generation of
-  more accurate scintillation maps;
+- Implements Gaussian Process Regression interpolation method;
+- More accurate scintillation maps given by interpolation method and choice of
+  preprocessing options;
 - Low computational cost compatible with real-time demands;
-- Interpolated matrix stored in HDF5 format;
-- Many options for plotting scintillation maps.
+- Map interpolated matrix stored in HDF5 format;
+- Offer many options for plotting scintillation maps.
 
 ## ℹ️ Overview
 
@@ -48,33 +48,33 @@ monitoring stations to generate a 2D scintillation map.
 
 The IONO-SCINT-MAP library provides tools for generating three types of 
 ionospheric scintillation maps, which are related to the S4, $\sigma_\phi$, and
-ROTI scintillation indices. These maps can be used to monitor ionospheric 
-scintillation in real time, in studies with historical data, and also to train
-machine learning models that predict ionospheric scintillation.
+ROTI scintillation indexes. These maps can be used for real-time ionospheric
+scintillation monitoring, for studies with historical data, and also for 
+training machine learning models that predict ionospheric scintillation.
 
-The making of these scintillation maps requires the interpolation of IPP 
-samples, given by the ionospheric scintillation index values for each IPP of 
-each satellite-station link considering the set of GNSS stations of the given 
-area and time interval. Interpolation is performed with the aim of filling in
-IPP data gaps, resulting in a smoother map for the considered grid in longitude
+The generation of these scintillation maps requires the interpolation of the
+considered scintillation index at the samples of the Ionospheric Pierce Points
+(IPP’s) of each satellite-station link, considering the set of GNSS stations of
+the given area and time interval. The proposed  interpolation aims to fill in
+IPP data gaps, resulting in smoother maps for the considered grid in longitude
 and latitude, and for the integration interval.
 
 These maps were implemented using a new approach proposed by MARTINON et al. 
-(2023). This new approach consists of a set of preprocessing options and an 
-interpolation method. It allows to generate more accurate scintillation maps 
-with a low computational cost that is compatible with real-time demands. Former 
-approaches to investigate ionospheric scintillation over the Brazilian territory 
-include the generation of regional S4 index maps by REZENDE et al. (2007) and 
-VANI (2018) which employed different preprocessing options and interpolation
-methods.
+(2023), which consists of the Gaussian Process Regression interpolation and a 
+set of specific preprocessing options. It allows the generatation of more
+accurate scintillation maps with a low computational cost that is compatible
+with real-time demands. Former approaches to investigate ionospheric
+scintillation over the Brazilian territory include the generation of regional S4
+index maps by REZENDE et al. (2007) and VANI (2018) employing different
+preprocessing options and interpolation methods.
 
-A more detailed discussion about the ionospheric scintillation maps can be found
-in MARTINON (2024).
+A more detailed discussion about ionospheric scintillation maps can be found in
+MARTINON (2024).
 
 ### ✍️ Authors
 
 This software is copyrighted to the National Institute for Space Research 
-(INPE/Brazil), and developed by the following researchers:
+(INPE/Brazil), and was developed by the following researchers:
 
 * André Ricardo Fazanaro Martinon 
 ([andre.martinon@inpe.br](mailto:andre.martinon@inpe.br))
@@ -88,7 +88,7 @@ This software is copyrighted to the National Institute for Space Research
 ## ⬇️ Installation
 
 To install the iono-scint-map tool, you must use a Python package manager and
-install the package from this GitHub repository, as shown below:
+install this package from this GitHub repository, as shown below:
 
 ```bash
 $ pip install git+ssh://git@github.com/andremartinon/iono-scint-map.git 
@@ -96,8 +96,8 @@ $ pip install git+ssh://git@github.com/andremartinon/iono-scint-map.git
 
 ## 🚀 Usage
 
-To use iono-scint-map as a command-line tool (CLI), after installation you can
-run iono-scint-map command from a terminal, as shown below:
+After the package installation, in order to use iono-scint-map as a command-line
+tool (CLI), just run iono-scint-map command from a terminal, as shown below:
 
 ```bash
 $ iono-scint-map --help
@@ -131,27 +131,27 @@ Commands:
   show      Show the software licensing information.
 ```
 
-There is a help content for each iono-scint-map command, that can be seen using:
+To access specific command-line help for each iono-scint-map command, type:
 
 ```bash
 $ iono-scint-map [create|plot|plot-ipp|show] --help
 ```
 
 For example, to interpolate a scintillation map using the datasets available in
-this repository (folder tests_data), you could use the following command:
+the repository folder `tests_data`, use the following command:
 
 ```bash
 $ iono-scint-map create tests_data/train_map_data.csv tests_data/inct_stations.parquet
 ```
-A HDF5 file will be created in the current folder, using the default file name
-`scint_map.h5`. Now to plot the interpolated scintillation map to PNG and PDF
-files format you could use the command as seen below:
+As a result, a HDF5 file will be created in the current folder, using the
+default file name `scint_map.h5`. Next, in order to plot the interpolated
+scintillation map to PNG and PDF file format, just type:
 
 ```bash
 $ iono-scint-map plot scint_map.h5
 ```
 
-The files `scint_map.png` and `scint_map.pdf` will be created in the current
+Both files `scint_map.png` and `scint_map.pdf` will be created in the current
 folder.
 
 ### Minimal Python example
@@ -211,16 +211,33 @@ fig.savefig((output_dir / file_name).with_suffix('.pdf'), format='pdf')
 
 Use the
 ["Issues"](https://github.com/andremartinon/iono-scint-map/issues) section of the 
-repository to report bugs or request new features. The 
+repository to report bugs or request new features, and use the 
 ["Pull requests"](https://github.com/andremartinon/iono-scint-map/pulls) section
-is used to contribute to the development of iono-scint-map.
+to contribute for the development of iono-scint-map.
 
 ## ❗ Citation
 
-Please reference the paper **'A new approach for the generation of real-time 
-GNSS low-latitude ionospheric scintillation maps'** when using the software for 
-academic work (publications, thesis etc). The paper is available from:
-<https://doi.org/10.1051/swsc/2023015>.
+Please cite the following paper if you use the software for 
+any academic work (publications, thesis etc):
+
+> MARTINON, A. R. F.; STEPHANY, S.; PAULA, E. R. de. A new approach for
+the generation of real-time GNSS low-latitude ionospheric scintillation maps.
+**Journal of Space Weather and Space Climate**, v. 13, p. 18, 2023. Available
+from: <https://doi.org/10.1051/swsc/2023015>.
+
+**BibTeX**
+```bibtex
+@article{ refId0,
+	author = {{Martinon, André R. F.} and {Stephany, Stephan} and {de Paula, Eurico R.}},
+	title = {A new approach for the generation of real-time GNSS low-latitude ionospheric scintillation maps},
+	DOI= "10.1051/swsc/2023015",
+	url= "https://doi.org/10.1051/swsc/2023015",
+	journal = {J. Space Weather Space Clim.},
+	year = 2023,
+	volume = 13,
+	pages = "18",
+}
+```
 
 ## 📃 References
 
