@@ -1,31 +1,11 @@
-<p align="center">
-   <a href="https://www.gnu.org/licenses/agpl-3.0">
-      <img src="https://img.shields.io/badge/License-GNU_AGPLv3-purple.svg?style=flat-square&logo=gnu"
-       alt="License: AGPL v3" />
-   </a>
-   <a href="https://www.python.org/">
-      <img src="https://img.shields.io/badge/Python-3.12+-red.svg?style=flat-square&logo=python&logoColor=white"
-       alt="Python 3.12 or later">
-   </a>
-   <a href="https://www.linuxfoundation.org/">
-      <img src="https://img.shields.io/badge/Linux-kernel_6.x-cyan.svg?style=flat-square&logo=linux&logoColor=white"
-       alt="OS linux-generic">
-   </a>
-   <a href="https://doi.org/10.1051/swsc/2023015">
-      <img src="https://img.shields.io/badge/DOI-10.1051%2Fswsc%2F2023015-blue?style=flat-square"
-   alt="DOI to cite IONO-SCINT-MAP">
-   </a>
-</p>
+# 📦 IONO-SCINT-MAP
 
-<br />
+[![Software License: AGPL v3](https://img.shields.io/badge/License-GNU_AGPLv3-purple.svg?style=flat-square&logo=gnu)](https://www.gnu.org/licenses/agpl-3.0)
+[![Python: 3.12](https://img.shields.io/badge/Python-3.12-red.svg?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![Linux kernel: 6.x](https://img.shields.io/badge/Linux-kernel_6.x-cyan.svg?style=flat-square&logo=linux&logoColor=white)](https://www.linuxfoundation.org/)
+[![DOI to cite IONO-SCINT-MAP](https://img.shields.io/badge/DOI-10.1051%2Fswsc%2F2023015-blue?style=flat-square)](https://doi.org/10.1051/swsc/2023015)
 
-<h1 align="center">
-  📦 IONO-SCINT-MAP
-</h1>
-
-<p align="center">
-<b>Ionospheric Scintillation Map Generation Tool</b>
-</p>
+**IONOSPHERIC SCINTILLATION MAP GENERATION TOOL**
 
 ## 🌟 Highlights
 
