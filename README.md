@@ -1,6 +1,6 @@
 # 📦 IONO-SCINT-MAP
 
-[![Software License: AGPL v3](https://img.shields.io/badge/License-GNU_AGPLv3-purple.svg?style=flat-square&logo=gnu)](https://www.gnu.org/licenses/agpl-3.0)
+[![Software License: AGPL v3](https://img.shields.io/badge/License-GNU_AGPLv3-purple.svg?style=flat-square&logo=gnu)](https://github.com/andremartinon/iono-scint-map/blob/master/LICENSE)
 [![Python: 3.12](https://img.shields.io/badge/Python-3.12-red.svg?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![Linux kernel: 6.x](https://img.shields.io/badge/Linux-kernel_6.x-cyan.svg?style=flat-square&logo=linux&logoColor=white)](https://www.linuxfoundation.org/)
 [![DOI to cite IONO-SCINT-MAP](https://img.shields.io/badge/DOI-10.1051%2Fswsc%2F2023015-blue?style=flat-square)](https://doi.org/10.1051/swsc/2023015)
