@@ -6,7 +6,7 @@
 [![DOI to cite IONO-SCINT-MAP](https://img.shields.io/badge/DOI-10.1051%2Fswsc%2F2023015-blue?style=flat-square)](https://doi.org/10.1051/swsc/2023015)
 
 **Repository of the tool for generating ionospheric scintillation maps of the 
-S4, $\sigma_\phi$, and ROTI indexes.**
+S4, $\mathbf{\sigma_\phi}$, and ROTI indexes.**
 
 ## 🌟 Highlights
 
