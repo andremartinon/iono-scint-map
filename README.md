@@ -24,8 +24,7 @@ Here are the main highlights of this tool:
 
 The IONO-SCINT-MAP is a tool which allow to interpolate scintillation data, i.e.
 ionospheric scintillation index measurements, from a network of distributed GNSS
-monitoring stations to generate a 2D scintillation map.
-
+monitoring stations to generate a 2D interpolated scintillation map.
 
 The IONO-SCINT-MAP library provides tools for generating three types of 
 ionospheric scintillation maps, which are related to the S4, $\sigma_\phi$, and
