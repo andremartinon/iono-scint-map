@@ -233,6 +233,13 @@ from: <https://doi.org/10.1051/swsc/2023015>.
 }
 ```
 
+## Acknowledgements
+
+The authors acknowledge the National Institute of Science and Technology in GNSS
+for Air Navigation Support (INCT-GNSS-NavAer), funded by CNPq (465648/2014-2),
+FAPESP (2017/50115-0), and CAPES (88887.137186/2017-00), for providing the
+ionospheric scintillation data stored in the `tests_data` folder.
+
 ## 📃 References
 
 Martinon, A. R. F.; Stephany, S.; Paula, E. R. de. A new approach for
