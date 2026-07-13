@@ -53,8 +53,14 @@ MARTINON (2024).
 
 ### ✍️ Authors
 
-This software is copyrighted to the National Institute for Space Research 
-(INPE/Brazil), and was developed by the following researchers:
+The copyright for this software is held by the **National Institute for Space 
+Research** (INPE/Brazil), and it has been **registered** with the **National 
+Institute of Industrial Property** (INPI/Brazil) under application number 
+`BR512026004906-7`. The registration can be verified in INPI Gazette No. 
+[2896](https://revistas.inpi.gov.br/pdf/Programa_de_computador2896.pdf), 
+published on July 7, 2026.
+
+This software was developed by the following INPE researchers: 
 
 * André Ricardo Fazanaro Martinon 
 ([andre.martinon@inpe.br](mailto:andre.martinon@inpe.br))
