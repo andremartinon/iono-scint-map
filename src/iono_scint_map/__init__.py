@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, see <https://www.gnu.org/licenses/>.
 
-__version__ = '1.0'
+__version__ = '1.0.1'
 __author__ = ['André Ricardo Fazanaro Martinon']
 __copyright__ = 'Copyright 2026, National Institute for Space Research (INPE)'
 __credits__ = ['Stephan Stephany', 'Eurico Rodrigues de Paula']
