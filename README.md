@@ -1,4 +1,5 @@
 ![IONO-SCINT-MAP](assets/logo.png)
+
 # 📦 IONO-SCINT-MAP
 
 [![Software License: AGPL v3](https://img.shields.io/badge/License-GNU_AGPLv3-purple.svg?style=flat-square&logo=gnu)](https://github.com/andremartinon/iono-scint-map/blob/master/LICENSE)
@@ -7,7 +8,7 @@
 [![DOI to cite IONO-SCINT-MAP](https://img.shields.io/badge/DOI-10.1051%2Fswsc%2F2023015-blue?style=flat-square)](https://doi.org/10.1051/swsc/2023015)
 
 **Repository of the tool for generating ionospheric scintillation maps of the 
-S4, $\boldsymbol{\sigma}_\boldsymbol{\phi}$, and ROTI indexes.**
+S4, $\boldsymbol{\sigma}_\boldsymbol{\phi}$, and ROTI indices.**
 
 ## 🌟 Highlights
 
@@ -29,28 +30,28 @@ monitoring stations to generate a 2D interpolated scintillation map.
 
 The IONO-SCINT-MAP library provides tools for generating three types of 
 ionospheric scintillation maps, which are related to the S4, $\sigma_\phi$, and
-ROTI scintillation indexes. These maps can be used for real-time ionospheric
+ROTI scintillation indices. These maps can be used for real-time ionospheric
 scintillation monitoring, for studies with historical data, and also for 
 training machine learning models that predict ionospheric scintillation.
 
-The generation of these scintillation maps requires the interpolation of the
-considered scintillation index at the samples of the Ionospheric Pierce Points
-(IPP’s) of each satellite-station link, considering the set of GNSS stations of
-the given area and time interval. The proposed  interpolation aims to fill in
-IPP data gaps, resulting in smoother maps for the considered grid in longitude
-and latitude, and for the integration interval.
+These scintillation maps are constructed by interpolating the scintillation
+index at the Ionospheric Pierce Points (IPPs) of individual satellite-station
+links, utilizing data from the GNSS station network over a specified area and
+time interval. The proposed interpolation aims to fill in IPP data gaps,
+resulting in smoother maps for the considered grid in longitude and latitude,
+and for the integration interval.
 
-These maps were implemented using a new approach proposed by MARTINON et al. 
-(2023), which consists of the Gaussian Process Regression interpolation and a 
-set of specific preprocessing options. It allows the generatation of more
-accurate scintillation maps with a low computational cost that is compatible
-with real-time demands. Former approaches to investigate ionospheric
-scintillation over the Brazilian territory include the generation of regional S4
-index maps by REZENDE et al. (2007) and VANI (2018) employing different
-preprocessing options and interpolation methods.
+The implementation of these maps relied on a new approach proposed by Martinon
+et al. (2023), which combines Gaussian Process Regression (GPR) interpolation
+with specific preprocessing options. This approach generates more accurate
+scintillation maps at a low computational cost, making it compatible with 
+real-time demands. Previous studies investigating ionospheric scintillation
+over Brazilian territory include regional S4 index mapping by Rezende et al.
+(2007) and Vani (2018), both of which employed different preprocessing and
+interpolation methods.
 
 A more detailed discussion about ionospheric scintillation maps can be found in
-MARTINON (2024).
+Martinon (2024).
 
 ### ✍️ Authors
 
@@ -74,17 +75,22 @@ This software was developed by the following INPE researchers:
 
 ## ⬇️ Installation
 
-To install the iono-scint-map tool, you must use a Python package manager and
-install this package from this GitHub repository, as shown below:
+You can install iono-scint-map directly from GitHub using either pip or pipenv:
 
+**pip command**
 ```bash
 $ pip install git+ssh://git@github.com/andremartinon/iono-scint-map.git 
+```
+
+**pipenv command**
+```bash
+$ pipenv install git+ssh://git@github.com/andremartinon/iono-scint-map.git@main#egg=iono-scint-map 
 ```
 
 ## 🚀 Usage
 
 After the package installation, in order to use iono-scint-map as a command-line
-tool (CLI), just run iono-scint-map command from a terminal, as shown below:
+tool (CLI), just run as shown below:
 
 ```bash
 $ iono-scint-map --help
@@ -130,6 +136,7 @@ the repository folder `tests_data`, use the following command:
 ```bash
 $ iono-scint-map create tests_data/train_map_data.csv tests_data/inct_stations.parquet
 ```
+
 As a result, a HDF5 file will be created in the current folder, using the
 default file name `scint_map.h5`. Next, in order to plot the interpolated
 scintillation map to PNG and PDF file format, just type:
@@ -228,28 +235,30 @@ from: <https://doi.org/10.1051/swsc/2023015>.
 
 ## 📃 References
 
-MARTINON, A. R. F.; STEPHANY, S.; PAULA, E. R. de. A new approach for
+Martinon, A. R. F.; Stephany, S.; Paula, E. R. de. A new approach for
 the generation of real-time GNSS low-latitude ionospheric scintillation maps.
 **Journal of Space Weather and Space Climate**, v. 13, p. 18, 2023. Available
 from: <<https://doi.org/10.1051/swsc/2023015>>.
 
-MARTINON, A. R. F. **Computational statistics and machine learning approaches
+Martinon, A. R. F. **Computational statistics and machine learning approaches
 for monitoring and predicting ionospheric scintillation**. 142 p. Thesis
 (Doutorado em Computação Aplicada) — Instituto Nacional de Pesquisas Espaciais
 (INPE), São José dos Campos, 2024. Available from: 
 <<http://urlib.net/ibi/8JMKD3MGP3W34T/4B9G5HL>>.
 
-REZENDE, L. F. C.; PAULA, E. R. de; STEPHANY, S.; KANTOR, I. J.;
-MUELLA, M. T. A. H.; SIQUEIRA, P. M. de; CORREA, K. S. Survey and
+Rezende, L. F. C.; Paula, E. R. de; Stephany, S.; Kantor, I. J.;
+Muella, M. T. A. H.; Siqueira, P. M. de; Correa, K. S. Survey and
 prediction of the ionospheric scintillation using data mining techniques. 
 **Space Weather**, v. 8, n. 6, 2010. Available from:
 <<https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2009SW000532>>.
 
-VANI, B. C. **Investigações sobre modelagem, mitigação e predição de
+Vani, B. C. **Investigações sobre modelagem, mitigação e predição de
 cintilação ionosférica na região brasileira**. Thesis (Doutorado em Ciências
 Cartográficas) — Universidade Estadual Paulista (Unesp), Faculdade de Ciências e
 Tecnologia, Presidente Prudente, 2018. Available from:
-<<http://hdl.handle.net/11449/153701>>.## AI Disclosure & Assets
+<<http://hdl.handle.net/11449/153701>>.
+
+## AI Disclosure & Assets
  
 * **Banner Art:** This project utilizes visual assets generated by artificial
   intelligence (ChatGPT/DALL-E 3). 
